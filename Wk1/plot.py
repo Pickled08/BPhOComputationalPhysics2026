@@ -1,11 +1,13 @@
 import math
-import numpy
+import numpy as np
 import numbers
 import time
 from functools import wraps
 from tkinter import *
 from matplotlib.figure import Figure 
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk) 
+
+from randomwalk import NRadomWalks
 
 window = Tk()
 
@@ -19,46 +21,48 @@ def timer(func):
     return wrapper_function
 
 
-
+#EXAMPLE graph function
+#def graphfunc():
+#    x = numpy.linspace(-10, 10, 1000)
+#
+#    y1 = numpy.sin(x)
+#    y2 = numpy.cos(x)
+#    y3 = x ** 2
+#
+#    return [
+#        (x, y1, "sin(x)"),
+#        (x, y2, "cos(x)"),
+#        (x, y3, "x²"),
+#    ]
+#
 
 def graphfunc():
-    x = numpy.linspace(0, 10, 100)
-    y = numpy.sin(x)
-    return x, y
+    return NRadomWalks(10)
 
 print("Graphing Module Loaded")
 
-def plot(): 
-  
-    # the figure that will contain the plot 
-    fig = Figure(figsize = (20, 6.8), 
-                 dpi = 100) 
-  
-    #
-    x, y = graphfunc()
-    plot1 = fig.add_subplot(111)
-    plot1.plot(x, y)
-  
-    # creating the Tkinter canvas 
-    # containing the Matplotlib figure 
-    canvas = FigureCanvasTkAgg(fig, 
-                               master = window)   
-    canvas.draw() 
-  
-    # placing the canvas on the Tkinter window 
-    canvas.get_tk_widget().pack() 
-  
-    # creating the Matplotlib toolbar 
-    toolbar = NavigationToolbar2Tk(canvas, 
-                                   window) 
-    toolbar.update() 
-  
-    # placing the toolbar on the Tkinter window 
-    canvas.get_tk_widget().pack() 
+def plotOnGraph():
+    fig = Figure(figsize=(20, 6.8), dpi=100)
+    ax = fig.add_subplot(111)
+
+    for x, y, label in graphfunc():
+        ax.plot(x, y, label=label)
+
+    ax.legend()
+    ax.grid(True)
+
+    canvas = FigureCanvasTkAgg(fig, master=window)
+    canvas.draw()
+    canvas.get_tk_widget().pack()
+
+    toolbar = NavigationToolbar2Tk(canvas, window)
+    toolbar.update()
+
+
 @timer
 def main():
     print("Loading...")
-    plot()
+    plotOnGraph()
 
 
 if __name__ == "__main__":
