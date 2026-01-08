@@ -22,7 +22,9 @@ def timer(func):
 
 
 def graphfunc():
-    return [numpy.sin(x / 20) for x in range(0, 1000)]
+    x = [0,1,1,0,0]
+    y = [1,1,0,0,1]
+    return x, y
 
 print("Graphing Module Loaded")
 
@@ -33,12 +35,9 @@ def plot():
                  dpi = 100) 
   
     #
-    y=graphfunc()
-    # adding the subplot S
-    plot1 = fig.add_subplot(111) 
-  
-    # plotting the graph 
-    plot1.plot(y) 
+    x, y = graphfunc()
+    plot1 = fig.add_subplot(111)
+    plot1.plot(x, y)
   
     # creating the Tkinter canvas 
     # containing the Matplotlib figure 
