@@ -22,8 +22,8 @@ def timer(func):
 
 
 def graphfunc():
-    x = [0,1,1,0,0]
-    y = [1,1,0,0,1]
+    x = numpy.linspace(0, 10, 100)
+    y = numpy.sin(x)
     return x, y
 
 print("Graphing Module Loaded")
