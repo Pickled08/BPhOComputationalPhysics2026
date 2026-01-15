@@ -13,11 +13,11 @@ def timer(func):
     return wrapper_function
 
 #Function you wish to graph
-from randomwalk import NRadomWalks
+from randomwalknumba import NRandomWalks
 
 @timer
 def graphfunc():
-    return NRadomWalks(1)
+    return NRandomWalks(10000, 100)
 
 saveImg = False
 
