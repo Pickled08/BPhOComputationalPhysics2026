@@ -1,7 +1,7 @@
 import random
 import numpy as np
 
-maxSteps = 1000
+maxSteps = 10
 
 stepSize = 1
 
@@ -28,4 +28,6 @@ def NRadomWalks(max):
         listOfPlots.append(resultsTuple)
     
     return listOfPlots
+
+print(NRadomWalks(1))
 
