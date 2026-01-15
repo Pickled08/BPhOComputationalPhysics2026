@@ -17,10 +17,11 @@ from randomwalknumba import NRandomWalks
 
 @timer
 def graphfunc():
-    return NRandomWalks(10000, 100)
+    return NRandomWalks(100, 0)
 
 saveImg = False
 
+@timer
 def plot():
 
     plt.xlabel("X position")
@@ -36,9 +37,10 @@ def plot():
     if saveImg:
         plt.savefig('graph-output.png', dpi = 300)
 
-    plt.show()
+    
 
 if __name__ == "__main__":
     plot()
+    plt.show()
 
 

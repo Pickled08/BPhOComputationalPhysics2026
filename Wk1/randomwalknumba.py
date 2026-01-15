@@ -2,7 +2,7 @@ import numpy as np
 from numba import njit
 import math
 
-maxSteps = 100000
+maxSteps = 1000_000
 stepSize = 1.0
 
 @njit(fastmath=True)
