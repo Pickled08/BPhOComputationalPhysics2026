@@ -8,10 +8,10 @@ g = 9.81 #gravity ms^-2
 c = 0.5 #coefficient of restitution
 u = 0 #initial velocity ms^-1
 h = 10 #initial height m
-dt = 0.01 #time step s
+dt = 0.000001 #time step s
 nBounce = 0 #number of bounces
 maxBounces = 10 # max number of bounces
-simulationTime = 10 # sim time s
+simulationTime = 5 # sim time s
 
 t = 0.0 #Time s
 x=0 #Displacement  from ground m
@@ -19,7 +19,7 @@ v=0 #Velocity
 timeIterations = int(simulationTime/dt)
 
 
-@njit(fastmath=True)
+#@njit(fastmath=True)
 def bounce(h, v0, g, dt, timeIterations, c):
     xarr = np.empty(timeIterations)
     tarr = np.empty(timeIterations)

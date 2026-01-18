@@ -13,31 +13,35 @@ def timer(func):
     return wrapper_function
 
 #Function you wish to graph
-from bounce import bounceGraph
+from rocket import rocketGraph
 
 @timer
 def graphfunc():
-    return bounceGraph()
+    return rocketGraph()
 
 saveImg = False
 
-@timer
-def plot():
+import matplotlib.pyplot as plt
 
-    plt.xlabel("Time (s)")
-    plt.ylabel("Hight (m)")
-    plt.title("2D Random Walk")
+def plot():
+    plt.ion()  # Turn on interactive mode
 
     for x, y, label in graphfunc():
+        title = ["Height vs Time", "Velocity vs Time", "Acceleration vs Time"]
+        plt.figure()
+        plt.plot(x, y, linewidth=1)
+        plt.xlabel("Time (s)")
+        plt.ylabel("Height (m)")
+        plt.title(title[int(label)-1])
 
-        plt.plot(x,y,linewidth = 1, label=label) # Plot the Graph
         print(f"Plotted: {label}")
 
-    if saveImg:
-        plt.savefig('graph-output.png', dpi = 300)
-    plt.show()
+        if saveImg:
+            plt.savefig(f'graph-output-{label}.png', dpi=300)
 
-    
+    # Keep all figures open until the user closes them manually
+    plt.ioff()  # Turn off interactive mode
+    plt.show()  # Show all figures at once
 
 if __name__ == "__main__":
     plot()
