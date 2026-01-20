@@ -21,7 +21,7 @@ x=0 #Displacement  from ground m
 v=0 #Velocity
 mt = mr + mf #total mass
 
-#@njit(fastmath=True)
+@njit(fastmath=True)
 def rocket(mt, g, thrust, burnTime, dt, timeIterations, t, x , v, rho0, Cd, A, mf):
     xarr = np.empty(timeIterations)
     tarr = np.empty(timeIterations)
@@ -31,7 +31,7 @@ def rocket(mt, g, thrust, burnTime, dt, timeIterations, t, x , v, rho0, Cd, A, m
     for i in range(timeIterations):
 
         if t <= burnTime:
-            Thr = thrust
+            Thr = thrust - 2
         else:
             Thr = 0.0
         
@@ -50,6 +50,7 @@ def rocket(mt, g, thrust, burnTime, dt, timeIterations, t, x , v, rho0, Cd, A, m
         if x < 0:
             x = 0
             v = 0
+            acceleration = 0
 
         xarr[i] = x
         tarr[i] = t
