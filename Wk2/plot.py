@@ -28,10 +28,11 @@ def plot():
 
     for x, y, label in graphfunc():
         title = ["Height vs Time", "Velocity vs Time", "Acceleration vs Time"]
+        yaxis = ["Height (m)", "Velocity (ms^-1)", "Acceleration (ms^-2)"]
         plt.figure()
         plt.plot(x, y, linewidth=1)
         plt.xlabel("Time (s)")
-        plt.ylabel("Height (m)")
+        plt.ylabel(yaxis[int(label)-1])
         plt.title(title[int(label)-1])
 
         print(f"Plotted: {label}")
