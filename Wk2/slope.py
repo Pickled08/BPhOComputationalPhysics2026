@@ -1,5 +1,6 @@
 import numpy as np
 from numba import njit
+from numba import cuda
 import numpy as np
 import matplotlib.pyplot as plt
 import math
