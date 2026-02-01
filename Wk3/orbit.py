@@ -7,15 +7,15 @@ from matplotlib.animation import FuncAnimation
 
 #Constants
 G = 6.67430e-11 # Gravitational constant in SI units (m^3 kg^-1 s^-2)
-m_target = 5.7e24 # Mass of the Target in kg
+m_target = 10000  # Mass of the Target in kg
 m_satellite = 10 # Mass of the satellite in kg
 eps = 1e-6  
 dt = 0.001           #time step s
 simulationTime = 6000.0 #sim time s
 timeIterations = int(simulationTime/dt)
 x0, y0 = 0, 0 # Initial target pos
-x1, y1 = 10, 10 # Initial object pos
-initial_velocity_s = np.array([1.0, 1.0]) # Initial velocity of satellite in m/s
+x1, y1 = 100, 100 # Initial object pos
+initial_velocity_s = np.array([0.0, 1.0]) # Initial velocity of satellite in m/s
 initial_velocity_t = np.array([0.0, 0.0]) # Initial velocity of target in m/s
 
 @njit(fastmath=True)
@@ -53,7 +53,7 @@ def orbit():
         r=np.sqrt((Xs - x0)**2 + (Ys - y0)**2)
         r = np.maximum(r, eps)
         F = G * (m_target * m_satellite) / r**2
-        ffGravity = np.array([Us,Vs]) * F
+        ffGravity = np.array([Us*F,Vs*F])
 
         acceleration_s = ffGravity/m_satellite
         
@@ -77,7 +77,7 @@ def orbit():
         r=np.sqrt((Xs - x0)**2 + (Ys - y0)**2)
         r = np.maximum(r, eps)
         F = G * (m_target * m_satellite) / r**2
-        ffGravity = np.array([Ut,Vt]) * F
+        ffGravity = np.array([Ut,Vt])
 
         acceleration_t = ffGravity/m_target
         
