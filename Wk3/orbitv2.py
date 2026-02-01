@@ -7,16 +7,21 @@ from matplotlib.animation import FuncAnimation
 
 #Constants
 G = 10 # Gravitational constant in SI units (m^3 kg^-1 s^-2)
+
 m_target = 10000  # Mass of the Target in kg
 m_satellite = 1 # Mass of the satellite in kg
+
 eps = 1e-6  
+
 dt = 0.00001           #time step s
 simulationTime = 60.0 #sim time s
 timeIterations = int(simulationTime/dt)
+
 target_pos_init = np.array([0.0,0.0])
 satellite_pos_init = np.array([10.0,0.0])
+
 initial_velocity_s = np.array([0.0, 100.0]) # Initial velocity of satellite in m/s
-initial_velocity_t = np.array([0.0, 0.0]) # Initial velocity of target in m/s
+initial_velocity_t = np.array([50.0, 0.0]) # Initial velocity of target in m/s
 
 @njit(fastmath=True)
 def norm2(v):
@@ -48,12 +53,13 @@ def orbit():
 
     for i in range(timeIterations):
 
+        # Find Force on Satellite Due to Target
         vector_to_target = target_pos - satellite_pos
-        r = norm2(vector_to_target)
+        r_s = norm2(vector_to_target)
 
-        if r > 0:
-            unit_vector_to_target = vector_to_target / r
-            ffgravity_satellite = unit_vector_to_target * (G * m_satellite * m_target / r**2)
+        if r_s > 0:
+            unit_vector_to_target = vector_to_target / r_s
+            ffgravity_satellite = unit_vector_to_target * (G * m_satellite * m_target / r_s**2)
         else:
             ffgravity_satellite = np.zeros_like(vector_to_target)
 
@@ -61,6 +67,21 @@ def orbit():
 
         velocity_s = velocity_s + acceleration_s * dt
         satellite_pos = satellite_pos + velocity_s * dt
+
+
+        # Find Force on Target Due to Satellite
+        vector_to_satellite = satellite_pos - target_pos
+        r_t = norm2(vector_to_satellite)
+        if r_t > 0:
+            ffgravity_target = -ffgravity_satellite
+        else:
+            ffgravity_target = np.zeros_like(vector_to_satellite)
+        
+        acceleration_t = ffgravity_target / m_target
+
+        velocity_t = velocity_t + acceleration_t * dt
+        target_pos = target_pos + velocity_t * dt
+
         t = t + dt
 
         xarr[i] = satellite_pos[0]
@@ -110,21 +131,24 @@ def animate_orbit():
     ax.set_aspect('equal', adjustable='box')
 
     # --- plot elements ---
-    trail, = ax.plot([], [], lw=1)
-    satellite, = ax.plot([], [], 'o', color='blue')
-    body2, = ax.plot([], [], 'o', color='red')
+    satellite_trail, = ax.plot([], [], lw=1, color='blue')
+    satellite_dot, = ax.plot([], [], 'o', color='blue')
+    target_trail, = ax.plot([], [], lw=1, color='red')  # red line for target
+    target_dot, = ax.plot([], [], 'o', color='red')     # red dot for target
 
     def init():
-        trail.set_data([], [])
-        satellite.set_data([], [])
-        body2.set_data([], [])
-        return trail, satellite, body2
+        satellite_trail.set_data([], [])
+        satellite_dot.set_data([], [])
+        target_trail.set_data([], [])
+        target_dot.set_data([], [])
+        return satellite_trail, satellite_dot, target_trail, target_dot
 
     def update(i):
-        trail.set_data(xarr[:i], yarr[:i])
-        satellite.set_data([xarr[i]], [yarr[i]])
-        body2.set_data([x2arr[i]], [y2arr[i]])
-        return trail, satellite, body2
+        satellite_trail.set_data(xarr[:i], yarr[:i])
+        satellite_dot.set_data([xarr[i]], [yarr[i]])
+        target_trail.set_data(x2arr[:i], y2arr[:i])  # trail for target
+        target_dot.set_data([x2arr[i]], [y2arr[i]])
+        return satellite_trail, satellite_dot, target_trail, target_dot
 
     ani = FuncAnimation(
         fig,
