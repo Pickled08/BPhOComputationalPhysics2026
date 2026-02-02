@@ -8,7 +8,7 @@ from matplotlib.animation import FuncAnimation
 #Constants
 G = 10 # Gravitational constant in SI units (m^3 kg^-1 s^-2)
 
-m_target = 10000  # Mass of the Target in kg
+m_target = 10000000 # Mass of the Target in kg
 m_satellite = 1 # Mass of the satellite in kg
 
 eps = 1e-6  
@@ -18,10 +18,10 @@ simulationTime = 60.0 #sim time s
 timeIterations = int(simulationTime/dt)
 
 target_pos_init = np.array([0.0,0.0])
-satellite_pos_init = np.array([10.0,0.0])
+satellite_pos_init = np.array([100.0,0.0])
 
-initial_velocity_s = np.array([0.0, 100.0]) # Initial velocity of satellite in m/s
-initial_velocity_t = np.array([50.0, 0.0]) # Initial velocity of target in m/s
+initial_velocity_s = np.array([0.0, 1000.0]) # Initial velocity of satellite in m/s
+initial_velocity_t = np.array([0.0, 0.0]) # Initial velocity of target in m/s
 
 @njit(fastmath=True)
 def norm2(v):
