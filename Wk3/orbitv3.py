@@ -6,20 +6,25 @@ from numba import cuda
 from matplotlib.animation import FuncAnimation
 
 #Constants
-G = 10 # Gravitational constant in SI units (m^3 kg^-1 s^-2)
+title = "Halley's Comet Orbit Simulation Using Velocity Verlet Integration"
+G = 6.674e-11  # Gravitational constant in SI units (m^3 kg^-1 s^-2)
 
-m_target = 1 # Mass of the Target in kg
-m_satellite = 1 # Mass of the satellite in kg
+# Halley's comet has extreme elliptical orbit (e=0.967)
+m_target = 1.989e30    # Mass of Sun (kg, real value)
+m_satellite = 2.2e14   # Mass of Halley's comet (kg, real value)
 
-dt = 0.00001           #time step s
-simulationTime = 60.0 #sim time s
+dt = 10000.0           # time step s
+simulationTime = 5e9   # sim time s (~1.5 years to see the ellipse)
 timeIterations = int(simulationTime/dt)
 
-target_pos_init = np.array([0.0,0.0]) # Initial position of target in m
-satellite_pos_init = np.array([1.0,0.0]) # Initial position of satellite in m
+target_pos_init = np.array([0.0, 0.0])          # Sun at origin
+satellite_pos_init = np.array([8.77e10, 0.0])   # Start at perihelion (0.586 AU in meters)
 
-initial_velocity_s = np.array([1.0, 0.0]) # Initial velocity of satellite in m/s
-initial_velocity_t = np.array([0.0, 1.0]) # Initial velocity of target in m/s
+# At perihelion: v = sqrt(G*M*(2/r - 1/a))
+# Semi-major axis a = 2.67e12 m
+# v = sqrt(6.674e-11 * 1.989e30 * (2/8.77e10 - 1/2.67e12)) ≈ 54,550 m/s
+initial_velocity_t = np.array([0.0, 0.0])       # Sun stationary
+initial_velocity_s = np.array([0.0, 54550.0])   # Fast at closest approach
 
 # --- Numba JIT-compiled Functions ---
 @njit(fastmath=True)
@@ -54,47 +59,57 @@ def orbit():
 
     # Main Simulation Loop
     for i in range(timeIterations):
-
-        # Find Force on Satellite Due to Target
+        
+        # ===== STEP 1: Calculate CURRENT accelerations =====
         vector_to_target = target_pos - satellite_pos
         r_s = norm2(vector_to_target)
-
-        if r_s > 0: # avoid division by zero
+        
+        if r_s > 0:
             unit_vector_to_target = vector_to_target / r_s
             ffgravity_satellite = unit_vector_to_target * (G * m_satellite * m_target / r_s**2)
         else:
             ffgravity_satellite = np.zeros_like(vector_to_target)
-
-
-        # Find Force on Target Due to Satellite
-        vector_to_satellite = satellite_pos - target_pos
-        r_t = norm2(vector_to_satellite)
-        if r_t > 0: # avoid division by zero
-            ffgravity_target = -ffgravity_satellite
-        else:
-            ffgravity_target = np.zeros_like(vector_to_satellite)
-
-        # Update Satellite Position and Velocity
-        acceleration_s = ffgravity_satellite / m_satellite
-
-        velocity_s = velocity_s + acceleration_s * dt
-        satellite_pos = satellite_pos + velocity_s * dt
         
-        # Update Target Position and Velocity
+        ffgravity_target = -ffgravity_satellite  # Newton's 3rd law
+        
+        acceleration_s = ffgravity_satellite / m_satellite
         acceleration_t = ffgravity_target / m_target
-
-        velocity_t = velocity_t + acceleration_t * dt
-        target_pos = target_pos + velocity_t * dt
-
-        # Update Time
+        
+        
+        # ===== STEP 2: Update positions using current velocities + accelerations =====
+        satellite_pos = satellite_pos + velocity_s * dt + 0.5 * acceleration_s * dt**2
+        target_pos = target_pos + velocity_t * dt + 0.5 * acceleration_t * dt**2
+        
+        
+        # ===== STEP 3: Calculate NEW accelerations at NEW positions =====
+        vector_to_target_new = target_pos - satellite_pos
+        r_s_new = norm2(vector_to_target_new)
+        
+        if r_s_new > 0:
+            unit_vector_to_target_new = vector_to_target_new / r_s_new
+            ffgravity_satellite_new = unit_vector_to_target_new * (G * m_satellite * m_target / r_s_new**2)
+        else:
+            ffgravity_satellite_new = np.zeros_like(vector_to_target_new)
+        
+        ffgravity_target_new = -ffgravity_satellite_new
+        
+        acceleration_s_new = ffgravity_satellite_new / m_satellite
+        acceleration_t_new = ffgravity_target_new / m_target
+        
+        
+        # ===== STEP 4: Update velocities using AVERAGE of old and new accelerations =====
+        velocity_s = velocity_s + 0.5 * (acceleration_s + acceleration_s_new) * dt
+        velocity_t = velocity_t + 0.5 * (acceleration_t + acceleration_t_new) * dt
+        
+        
+        # ===== STEP 5: Update time and store data =====
         t = t + dt
-
-        # Store Data
+        
         xarr[i] = satellite_pos[0]
         yarr[i] = satellite_pos[1]
         tarr[i] = t
         varr[i] = norm2(velocity_s)
-        aarr[i] = norm2(acceleration_s)
+        aarr[i] = norm2(acceleration_s_new)  # Store the final acceleration
         x2arr[i] = target_pos[0]
         y2arr[i] = target_pos[1]
 
@@ -108,7 +123,7 @@ def animate_orbit():
     tarr, xarr, yarr, varr, aarr, x2arr, y2arr = orbit()
 
     # --- downsample for animation ---
-    step = 500  # adjust for smoothness vs speed
+    step = 100  # adjust for smoothness vs speed
     tarr = tarr[::step]
     xarr = xarr[::step]
     yarr = yarr[::step]
@@ -118,7 +133,7 @@ def animate_orbit():
     fig, ax = plt.subplots()
     ax.set_xlabel("X Position (m)")
     ax.set_ylabel("Y Position (m)")
-    ax.set_title("Satellite Orbit Path")
+    ax.set_title(title)
     ax.grid(True)
 
     # --- Center on satellite initial position ---
