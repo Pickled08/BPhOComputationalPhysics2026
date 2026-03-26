@@ -26,7 +26,7 @@ def random_walk_numba(kappa):
     return x, y
 
 
-@njit(parallel=True)
+@njit(fastmath=True)
 def NRandomWalks_numba(n_walks, kappa):
     xs = np.empty((n_walks, maxSteps))
     ys = np.empty((n_walks, maxSteps))
