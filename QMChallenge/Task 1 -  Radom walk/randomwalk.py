@@ -3,9 +3,6 @@ from numba import njit
 from numba import cuda
 import math
 
-maxSteps = 1000_000
-stepSize = 1.0
-
 @njit(fastmath=True)
 def random_walk_numba(kappa, res, maxSteps, stepSize):
     
