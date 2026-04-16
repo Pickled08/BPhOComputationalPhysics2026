@@ -1,6 +1,5 @@
 import numpy as np
 from numba import njit
-from numba import cuda
 import math
 
 @njit(fastmath=True)
