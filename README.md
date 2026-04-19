@@ -1,1 +1,1 @@
-![Hackatime](https://hackatime-badge.hackclub.com/U0A71HS4QJZ/BPhOComputationalPhysics2026)
+Time Spent Typing: ![Hackatime](https://hackatime-badge.hackclub.com/U0A71HS4QJZ/BPhOComputationalPhysics2026)
