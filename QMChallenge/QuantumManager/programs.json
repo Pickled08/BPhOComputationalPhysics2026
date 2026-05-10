@@ -3,5 +3,10 @@
     "name": "Random Walk Plotter",
     "path": "RandomWalkT1/guiplot.py",
     "args": []
+  },
+    {
+    "name": "Brownian Motion",
+    "path": "BrownianMotionT2/brownianmotion.py",
+    "args": []
   }
 ]
