@@ -68,4 +68,6 @@ ttk.Button(frame, text="Run Plot", command=run_plot).grid(row=5, column=0, colum
 plt.ion()
 plt.figure()
 
+root.protocol("WM_DELETE_WINDOW", exit)
+
 root.mainloop()
