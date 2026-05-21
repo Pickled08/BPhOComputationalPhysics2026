@@ -14,7 +14,7 @@ def on_closing():
     plt.close('all') # Closes any open Matplotlib windows
     exit()
     
-def brownian_motion(n, m , r, v, M, R, xmax, ymax,kappa, dt):
+def brownian_motion(n, m , r, v, M, R, xmax, ymax,kappa, dt, traceMode):
         
     rng = np.random.default_rng()
 
@@ -32,6 +32,10 @@ def brownian_motion(n, m , r, v, M, R, xmax, ymax,kappa, dt):
     large_particle_pos = np.array([xmax / 2, ymax / 2])
     
     large_particle_v = np.array([0.0,0.0])
+    
+    large_particle_history = []
+    
+    count = 1
 
     # Clean up the plot 
     plt.xlim(0, xmax)
@@ -63,38 +67,43 @@ def brownian_motion(n, m , r, v, M, R, xmax, ymax,kappa, dt):
                             #push to just outside the boundary (R + r)
                             buffer = r
                             particle_pos[idx] = large_particle_pos + (relative_vec / distances[idx]) * (R + buffer)
-                            
-                            # reflect the angle
-                            #normal_angle = np.arctan2(relative_vec[1], relative_vec[0])
-                            #particle_angle[idx] = 2 * normal_angle - particle_angle[idx]
-                            
-                #Get velocity vector
-                theta = particle_angle[idx]
-                particle_vec_v = np.array([np.cos(theta),np.sin(theta)])*v_array[idx]
                 
-                collision_vector = large_particle_pos - particle_pos[idx]
-                normal = collision_vector / np.linalg.norm(collision_vector)
-
-                # 2. Relative velocity vector
-                relative_v = particle_vec_v - large_particle_v
-
-                # 3. Calculate scalar velocity along the normal
-                # (Only the component of velocity along this line changes)
-                v_along_normal = np.dot(relative_v, normal)
-
-                # Do not process if particles are already moving apart
-                if v_along_normal > 0:
-                    # 4. Calculate impulse scalar (Elastic Collision)
-                    # Total Momentum Change = (2 * v_normal) / (1/m + 1/M)
-                    impulse = (2 * v_along_normal) / (1/m + 1/M)
-
-                    # 5. Apply the impulse to update velocities
-                    # Particle loses momentum, Large Particle gains it
-                    particle_vec_v -= (impulse / m) * normal
-                    large_particle_v += (impulse / M) * normal
-                    
-                v_array[idx] = np.linalg.norm(particle_vec_v)
+                #Convert to vector
+                theta = particle_angle[idx] 
+                particle_vec_vel_init = v_array[idx]*np.array([np.cos(theta),np.sin(theta)])
                 
+                relative_pos = large_particle_pos - particle_pos[idx]
+                true_distance = np.linalg.norm(relative_pos)
+
+                # Prevent division by zero just in case they are exactly on top of each other
+                if true_distance == 0: 
+                    true_distance = 0.001
+
+                normal_vec = relative_pos / true_distance
+                
+                tan_vec = np.array([-normal_vec[1], normal_vec[0]])
+                
+                #Tracks
+                collision_1 = np.dot(particle_vec_vel_init, normal_vec)
+                side_1 = np.dot(particle_vec_vel_init, tan_vec)
+                
+                collision_2 = np.dot(large_particle_v, normal_vec)
+                side_2 = np.dot(large_particle_v, tan_vec)
+                
+                new_collision_1 = ((m - M) * collision_1 + 2 * M * collision_2) / (m + M)
+                new_collision_2 = ((M - m) * collision_2 + 2 * m * collision_1) / (m + M)
+                
+                # Recombine the updated tracks into final [x, y] velocity vectors
+                new_particle_v = (new_collision_1 * normal_vec) + (side_1 * tan_vec)
+                new_large_v    = (new_collision_2 * normal_vec) + (side_2 * tan_vec)
+                
+                theta_new = np.arctan2(new_particle_v[1], new_particle_v[0])
+                new_particle_speed = np.linalg.norm(new_particle_v)
+                
+                v_array[idx] = new_particle_speed
+                particle_angle[idx] = theta_new
+                
+                large_particle_v = new_large_v  
                 
                     
             #Movement Step
@@ -125,12 +134,21 @@ def brownian_motion(n, m , r, v, M, R, xmax, ymax,kappa, dt):
             large_particle_pos += large_particle_v * dt
             sim_elapsed += dt
             
+        if traceMode == True:
+            count = (count % 2) + 1
+            if count == 1:
+                large_particle_history.append(large_particle_pos.copy())      
+                
         plt.cla() 
 
         plt.scatter(particle_pos[:, 0], particle_pos[:, 1], s=10)
         
         # Create the circle object
-        circle = plt.Circle(large_particle_pos, R, color='red', fill=True)
+        circle = plt.Circle(large_particle_pos, R, color='red', fill=False)
+        
+        if traceMode == True and len(large_particle_history) > 1:
+            history_array = np.array(large_particle_history)
+            plt.plot(history_array[:, 0], history_array[:, 1], color='red', linestyle='-', linewidth=0.8, alpha=0.3)
 
         # Add it to the plot
         plt.gca().add_patch(circle)
@@ -164,6 +182,7 @@ xmax_var = tk.StringVar(value="100")
 ymax_var = tk.StringVar(value="100")
 kappa_var = tk.StringVar(value="500")
 dt_var = tk.StringVar(value="0.001")
+traceMode = tk.BooleanVar(value=True)
 
 # Inputs
 
@@ -197,10 +216,12 @@ ttk.Entry(frame, textvariable=kappa_var).grid(row=13, column=1, padx=5, pady=2)
 ttk.Label(frame, text="Time Step (dt)").grid(row=14, column=0, sticky="w", padx=5, pady=2)
 ttk.Entry(frame, textvariable=dt_var).grid(row=14, column=1, padx=5, pady=2)
 
+ttk.Label(frame, text="Trace Mode").grid(row=15, column=0, sticky="w", padx=5, pady=2)
+ttk.Checkbutton(frame, text="On/Off", variable=traceMode).grid(row=15, column=1, sticky="w", padx=5, pady=2)
 # Button
 ttk.Button(
     frame, 
-    text="Run Plot", 
+    text="Run Simulation", 
     command=lambda: brownian_motion(
         int(n_var.get()),
         float(m_var.get()),
@@ -211,9 +232,10 @@ ttk.Button(
         float(xmax_var.get()),
         float(ymax_var.get()),
         float(kappa_var.get()),
-        float(dt_var.get())
+        float(dt_var.get()),
+        bool(traceMode.get())
     )
-).grid(row=15, column=0, columnspan=2, pady=10)
+).grid(row=16, column=0, columnspan=2, pady=10)
 
 # Matplotlib interactive mode
 plt.ion()
