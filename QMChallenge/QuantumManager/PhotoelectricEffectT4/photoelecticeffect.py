@@ -3,10 +3,16 @@ import matplotlib.pyplot as plt
 import tkinter as tk
 import json
 import os
+from PIL import Image, ImageTk
 
 # Load program configurations
 base_dir = os.path.dirname(os.path.abspath(__file__))
 json_path = os.path.join(base_dir, "materials.json")
+
+# Global variables for image manipulation
+battery_image = None
+resized_image = None
+ROTATION_ANGLE = 0
 
 # Work function values in electronvolts (eV)
 # Source: Chemistry LibreTexts - B1: Workfunction Values (Reference Table)
@@ -43,6 +49,8 @@ else:
     print(f"Warning: materials.json not found at {json_path}, using defaults.")
     materials = default_materials
 
+current_voltage = 0.0
+
 def wavelength_changed(value):
     wavelength_label.config(text=f"Wavelength: {int(float(value))}nm")
 
@@ -53,6 +61,16 @@ def voltage_changed(value):
     v = float(value)
     voltage_label.config(text=f"Voltage: {v:.1f}V")
     
+    if resized_image is not None:
+        # If voltage is negative, flip the battery 180 degrees
+        angle = ROTATION_ANGLE + 180 if v < 0 else ROTATION_ANGLE
+        rotated = resized_image.rotate(angle, expand=True)
+        battery_image = ImageTk.PhotoImage(rotated)
+        
+        # Update the existing canvas image item configuration
+        canvas.itemconfig(battery_item_id, image=battery_image)
+        canvas.image = battery_image  # Save structural reference
+
     # Only show/scale text if voltage is strictly positive (> 0)
     if v > 0:
         # Max voltage is 10. Max font size is 16.
@@ -73,7 +91,8 @@ def voltage_changed(value):
             dynamic_size = 1
             
         # Update the text and make its font size dynamic
-        canvas.itemconfig(metal_text, text="+\n+\n+\n+\n+\n+\n+\n+\n+\n+", font=("Arial", dynamic_size, "bold"), fill="#FF3333")
+        canvas.itemconfig(left_metal_charge_text, text="+\n+\n+\n+\n+\n+\n+\n+\n+\n+", font=("Arial", dynamic_size, "bold"), fill="#FF3333")
+        canvas.itemconfig(right_metal_charge_text, text="-\n-\n-\n-\n-\n-\n-\n-\n-\n-", font=("Arial", dynamic_size, "bold"), fill="#007BFF")
     elif v < 0:
         # Max voltage is -10. Max font size is 16.
         # This formula scales the font size proportionally from 1 up to 16, but in reverse since it's negative.
@@ -93,10 +112,12 @@ def voltage_changed(value):
             dynamic_size = 1
             
         # Update the text and make its font size dynamic
-        canvas.itemconfig(metal_text, text="-\n-\n-\n-\n-\n-\n-\n-\n-\n-", font=("Arial", dynamic_size, "bold"), fill="#007BFF")
+        canvas.itemconfig(left_metal_charge_text, text="-\n-\n-\n-\n-\n-\n-\n-\n-\n-", font=("Arial", dynamic_size, "bold"), fill="#007BFF")
+        canvas.itemconfig(right_metal_charge_text, text="+\n+\n+\n+\n+\n+\n+\n+\n+\n+", font=("Arial", dynamic_size, "bold"), fill="#FF3333")
     else:
         # If voltage is 0 or negative, hide the text by clearing it
-        canvas.itemconfig(metal_text, text="")
+        canvas.itemconfig(left_metal_charge_text, text="")
+        canvas.itemconfig(right_metal_charge_text, text="")
 
 def material_changed(value):
     #get the work function of the selected material
@@ -111,7 +132,7 @@ def material_changed(value):
 # Create the main window
 root = tk.Tk()
 root.title("Photoelectric Effect Simulation")
-root.geometry("900x600") # Widened the window slightly to fit both sides comfortably
+root.geometry("1300x800") # Widened the window slightly to fit both sides comfortably
 
 # ==========================================
 # LAYOUT STRUCTURE (The Left/Right Split)
@@ -129,22 +150,95 @@ animation_box.pack(side="right", fill="both", expand=True, padx=20, pady=20)
 canvas = tk.Canvas(animation_box, bg="white", highlightthickness=1, highlightbackground="gray")
 canvas.pack(fill="both", expand=True)
 
-# Draw a rectangle on the canvas
+# 1. Left Electrode (Emitter)
 canvas.create_rectangle(
-    50, 100, 100, 350,   # Position and dimensions
-    fill="lightgray",    # Inside color of the rectangle
-    outline="black",     # Border color
-    width=2              # Border thickness
+    250, 200, 300, 450,   # Position and dimensions
+    fill="lightgray",     # Inside color of the rectangle
+    outline="black",      # Border color
+    width=2               # Border thickness
 )
 
-metal_text = canvas.create_text(
-    75, 225, 
-    text="",  # Starts empty because initial voltage is 0
-    font=("Arial", 1, "bold"), 
+# 2. Right Electrode (Collector)
+canvas.create_rectangle(
+    750, 200, 800, 450,   # Position and dimensions
+    fill="lightgray",     # Inside color of the rectangle
+    outline="black",      # Border color
+    width=2               # Border thickness
+)
+
+left_metal_charge_text = canvas.create_text(
+    275, 325,             # New vertical center point
+    text="",  
+    font=("Arial", 12, "bold"), 
     justify="center",
     fill="#FF3333" 
 )
 
+right_metal_charge_text = canvas.create_text(
+    775, 325,             # New vertical center point
+    text="",
+    font=("Arial", 12, "bold"),
+    justify="center",
+    fill="#007BFF"
+)
+
+#Draw Wires
+canvas.create_line(250, 325, 200, 325, fill="black", width=2)  # Left wire
+canvas.create_line(800, 325, 850, 325, fill="black", width=2)  # Right wire
+canvas.create_line(200, 325, 200, 600, fill="black", width=2)  # Left vertical wire
+canvas.create_line(850, 325, 850, 600, fill="black", width=2)  # Right vertical wire
+canvas.create_line(200, 600, 850, 600, fill="black", width=2)  # Bottom horizontal wire
+
+#Draw Ammeter
+center_x = 850
+center_y = 462.5
+r = 25  # Adjust this number to make the circle bigger or smaller
+
+# Draw the white circle with a black outline
+canvas.create_oval(
+    center_x - r, 
+    center_y - r, 
+    center_x + r, 
+    center_y + r, 
+    fill="white", 
+    outline="black", 
+    width=2
+)
+
+#Draw Ammeter Label
+canvas.create_text(
+    center_x, 
+    center_y, 
+    text="A", 
+    font=("Arial", 16, "bold"), 
+    fill="black"
+)
+
+#Current Lable next to Ammeter
+current_label = canvas.create_text(
+    center_x + 100, 
+    center_y,
+    text="Current: 0.00 A",
+    font=("Arial", 14, "bold"),
+    fill="black"
+)
+
+
+
+try:
+    original_image = Image.open(os.path.join(base_dir, "Images/Battery.png"))
+    resized_image = original_image.resize((150, 150))
+    
+    # Process base rotation configuration
+    rotated_image = resized_image.rotate(ROTATION_ANGLE, expand=True)
+    battery_image = ImageTk.PhotoImage(rotated_image)
+
+    # Saved to battery_item_id so voltage_changed can modify it later
+    battery_item_id = canvas.create_image(525, 600, image=battery_image)
+    canvas.image = battery_image 
+
+except FileNotFoundError:
+    battery_item_id = canvas.create_text(525, 600, text="Battery image file not found.", fill="red")
 
 # ==========================================
 # WIDGETS (Now packed into left_frame)
