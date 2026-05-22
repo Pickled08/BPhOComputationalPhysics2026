@@ -3,16 +3,25 @@ import matplotlib.pyplot as plt
 import tkinter as tk
 import json
 import os
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk, ImageDraw
 
 # Load program configurations
 base_dir = os.path.dirname(os.path.abspath(__file__))
 json_path = os.path.join(base_dir, "materials.json")
 
 # Global variables for image manipulation
+resized_lamp = None
+resized_battery = None
 battery_image = None
 resized_image = None
-ROTATION_ANGLE = 0
+light_beam_id = None  # Tracking ID for the canvas transparent overlay
+BATTERY_ROTATION_ANGLE = 0
+LAMP_ROTATION_ANGLE = -60
+
+wavelength = 100
+intensity = 0
+voltage = 0.0
+polygon_points = [(300, 200), (300, 450), (750, 150), (650, 50)]
 
 # Work function values in electronvolts (eV)
 # Source: Chemistry LibreTexts - B1: Workfunction Values (Reference Table)
@@ -48,14 +57,107 @@ if os.path.exists(json_path):
 else:
     print(f"Warning: materials.json not found at {json_path}, using defaults.")
     materials = default_materials
+    
+def wavelength_to_hex(wavelength: float, gamma: float = 1.00) -> str:
+    """
+    Converts a given wavelength of light (in nanometers) to a hex color string.
+    Wavelengths outside the visible spectrum (380 nm to 750 nm) return black ("#000000").
+    
+    Based on Dan Bruton's algorithm:
+    http://www.physics.sfasu.edu/astro/color/wavelength.html
+    """
+    # 1. Determine base RGB components and intensity attenuation (factor)
+    if 380 <= wavelength <= 439:
+        r = -(wavelength - 440) / (440 - 380)
+        g = 0.0
+        b = 1.0
+        factor = 0.3 + 0.7 * (wavelength - 380) / (439 - 380)
+    elif 440 <= wavelength <= 489:
+        r = 0.0
+        g = (wavelength - 440) / (489 - 440)
+        b = 1.0
+        factor = 1.0
+    elif 490 <= wavelength <= 509:
+        r = 0.0
+        g = 1.0
+        b = -(wavelength - 510) / (510 - 490)
+        factor = 1.0
+    elif 510 <= wavelength <= 579:
+        r = (wavelength - 510) / (579 - 510)
+        g = 1.0
+        b = 0.0
+        factor = 1.0
+    elif 580 <= wavelength <= 644:
+        r = 1.0
+        g = -(wavelength - 645) / (645 - 580)
+        b = 0.0
+        factor = 1.0
+    elif 645 <= wavelength <= 750:
+        r = 1.0
+        g = 0.0
+        b = 0.0
+        factor = 0.3 + 0.7 * (750 - wavelength) / (750 - 645)
+    else:
+        # Non-visible spectrum (100-379 nm and 751-850 nm)
+        return "#000001"
+
+    # 2. Apply intensity factor and gamma correction, scaling to 0-255 range
+    r_int = int(round(255 * (r * factor) ** gamma)) if r > 0 else 0
+    g_int = int(round(255 * (g * factor) ** gamma)) if g > 0 else 0
+    b_int = int(round(255 * (b * factor) ** gamma)) if b > 0 else 0
+
+    # 3. Convert integer values to a hexadecimal string format
+    return f"#{r_int:02x}{g_int:02x}{b_int:02x}"
+
+def update_beam_visual():
+    global light_beam_id
+    
+    if light_beam_id is not None:
+        canvas.delete(light_beam_id)
+        
+    fraction = float(intensity) / 100.0
+    alpha_pct = np.sin(fraction * (np.pi / 2)) / 3.0
+    current_hex = wavelength_to_hex(wavelength)
+    
+    if alpha_pct == 0 or current_hex == "#000000":
+        light_beam_id = None
+        return
+
+    # Update canvas architecture layouts safely
+    width = canvas.winfo_width()
+    height = canvas.winfo_height()
+    
+    # Fail-safe catch if window sizes haven't completed rendering yet
+    if width <= 1 or height <= 1:
+        width, height = 1100, 700 
+
+    img = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(img)
+    
+    hex_color = current_hex.lstrip('#')
+    r, g, b = tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
+    alpha_val = int(alpha_pct * 255)
+    
+    draw.polygon(polygon_points, fill=(r, g, b, alpha_val))
+    tk_img = ImageTk.PhotoImage(img)
+    
+    light_beam_id = canvas.create_image(0, 0, anchor="nw", image=tk_img)
+    canvas.beam_image_ref = tk_img
+    canvas.tag_lower(light_beam_id)
 
 current_voltage = 0.0
 
 def wavelength_changed(value):
-    wavelength_label.config(text=f"Wavelength: {int(float(value))}nm")
+    global wavelength
+    wavelength = int(float(value))
+    wavelength_label.config(text=f"Wavelength: {wavelength}nm")
+    update_beam_visual()
 
 def intensity_changed(value):
+    global intensity
+    intensity = int(float(value))
     intensity_label.config(text=f"Intensity: {int(float(value))}%")
+    update_beam_visual()
 
 def voltage_changed(value):
     v = float(value)
@@ -63,7 +165,7 @@ def voltage_changed(value):
     
     if resized_image is not None:
         # If voltage is negative, flip the battery 180 degrees
-        angle = ROTATION_ANGLE + 180 if v < 0 else ROTATION_ANGLE
+        angle = BATTERY_ROTATION_ANGLE + 180 if v < 0 else BATTERY_ROTATION_ANGLE
         rotated = resized_image.rotate(angle, expand=True)
         battery_image = ImageTk.PhotoImage(rotated)
         
@@ -222,7 +324,20 @@ current_label = canvas.create_text(
     font=("Arial", 14, "bold"),
     fill="black"
 )
+try:
+    original_image = Image.open(os.path.join(base_dir, "Images/Lamp.png"))
+    resized_image = original_image.resize((300, 300))
+    
+    # Process base rotation configuration
+    rotated_image = resized_image.rotate(LAMP_ROTATION_ANGLE, expand=True)
+    lamp_image = ImageTk.PhotoImage(rotated_image)
 
+    # Saved to lamp_item_id so voltage_changed can modify it later
+    lamp_item_id = canvas.create_image(700, 100, image=lamp_image)
+    canvas.image = lamp_image 
+
+except FileNotFoundError:
+    lamp_item_id = canvas.create_text(525, 200, text="Lamp image file not found.", fill="red")
 
 
 try:
@@ -230,7 +345,7 @@ try:
     resized_image = original_image.resize((150, 150))
     
     # Process base rotation configuration
-    rotated_image = resized_image.rotate(ROTATION_ANGLE, expand=True)
+    rotated_image = resized_image.rotate(BATTERY_ROTATION_ANGLE, expand=True)
     battery_image = ImageTk.PhotoImage(rotated_image)
 
     # Saved to battery_item_id so voltage_changed can modify it later
@@ -239,6 +354,8 @@ try:
 
 except FileNotFoundError:
     battery_item_id = canvas.create_text(525, 600, text="Battery image file not found.", fill="red")
+
+update_beam_visual()
 
 # ==========================================
 # WIDGETS (Now packed into left_frame)
