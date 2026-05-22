@@ -1,0 +1,254 @@
+[
+  {
+    "name": "Silver",
+    "workfunction": 4.5
+  },
+  {
+    "name": "Gold",
+    "workfunction": 5.285
+  },
+  {
+    "name": "Beryllium",
+    "workfunction": 4.98
+  },
+  {
+    "name": "Calcium",
+    "workfunction": 2.87
+  },
+  {
+    "name": "Cobalt",
+    "workfunction": 5.0
+  },
+  {
+    "name": "Copper",
+    "workfunction": 4.815
+  },
+  {
+    "name": "Gallium",
+    "workfunction": 4.32
+  },
+  {
+    "name": "Mercury",
+    "workfunction": 4.475
+  },
+  {
+    "name": "Potassium",
+    "workfunction": 2.29
+  },
+  {
+    "name": "Lutetium",
+    "workfunction": 3.3
+  },
+  {
+    "name": "Molybdenum",
+    "workfunction": 4.655
+  },
+  {
+    "name": "Neodymium",
+    "workfunction": 3.2
+  },
+  {
+    "name": "Lead",
+    "workfunction": 4.25
+  },
+  {
+    "name": "Rubidium",
+    "workfunction": 2.261
+  },
+  {
+    "name": "Ruthenium",
+    "workfunction": 4.71
+  },
+  {
+    "name": "Selenium",
+    "workfunction": 5.9
+  },
+  {
+    "name": "Tin",
+    "workfunction": 4.42
+  },
+  {
+    "name": "Terbium",
+    "workfunction": 3.0
+  },
+  {
+    "name": "Titanium",
+    "workfunction": 4.33
+  },
+  {
+    "name": "Vanadium",
+    "workfunction": 4.3
+  },
+  {
+    "name": "Ytterbium",
+    "workfunction": 2.6
+  },
+  {
+    "name": "Aluminium",
+    "workfunction": 4.16
+  },
+  {
+    "name": "Boron",
+    "workfunction": 4.45
+  },
+  {
+    "name": "Bismuth",
+    "workfunction": 4.31
+  },
+  {
+    "name": "Cadmium",
+    "workfunction": 4.08
+  },
+  {
+    "name": "Chromium",
+    "workfunction": 4.5
+  },
+  {
+    "name": "Europium",
+    "workfunction": 2.5
+  },
+  {
+    "name": "Gadolinium",
+    "workfunction": 2.9
+  },
+  {
+    "name": "Indium",
+    "workfunction": 4.09
+  },
+  {
+    "name": "Lanthanum",
+    "workfunction": 3.5
+  },
+  {
+    "name": "Magnesium",
+    "workfunction": 3.66
+  },
+  {
+    "name": "Sodium",
+    "workfunction": 2.36
+  },
+  {
+    "name": "Nickel",
+    "workfunction": 5.195
+  },
+  {
+    "name": "Palladium",
+    "workfunction": 5.41
+  },
+  {
+    "name": "Rhenium",
+    "workfunction": 4.72
+  },
+  {
+    "name": "Antimony",
+    "workfunction": 4.625
+  },
+  {
+    "name": "Silicon",
+    "workfunction": 4.725
+  },
+  {
+    "name": "Strontium",
+    "workfunction": 2.59
+  },
+  {
+    "name": "Tellurium",
+    "workfunction": 4.95
+  },
+  {
+    "name": "Thallium",
+    "workfunction": 3.84
+  },
+  {
+    "name": "Tungsten",
+    "workfunction": 4.77
+  },
+  {
+    "name": "Zinc",
+    "workfunction": 4.265
+  },
+  {
+    "name": "Arsenic",
+    "workfunction": 3.75
+  },
+  {
+    "name": "Barium",
+    "workfunction": 2.61
+  },
+  {
+    "name": "Carbon",
+    "workfunction": 5.0
+  },
+  {
+    "name": "Cerium",
+    "workfunction": 2.9
+  },
+  {
+    "name": "Caesium",
+    "workfunction": 2.1
+  },
+  {
+    "name": "Iron",
+    "workfunction": 4.74
+  },
+  {
+    "name": "Hafnium",
+    "workfunction": 3.9
+  },
+  {
+    "name": "Iridium",
+    "workfunction": 5.335
+  },
+  {
+    "name": "Lithium",
+    "workfunction": 2.9
+  },
+  {
+    "name": "Manganese",
+    "workfunction": 4.1
+  },
+  {
+    "name": "Niobium",
+    "workfunction": 4.41
+  },
+  {
+    "name": "Osmium",
+    "workfunction": 5.93
+  },
+  {
+    "name": "Platinum",
+    "workfunction": 5.525
+  },
+  {
+    "name": "Rhodium",
+    "workfunction": 4.98
+  },
+  {
+    "name": "Scandium",
+    "workfunction": 3.5
+  },
+  {
+    "name": "Samarium",
+    "workfunction": 2.7
+  },
+  {
+    "name": "Tantalum",
+    "workfunction": 4.4
+  },
+  {
+    "name": "Thorium",
+    "workfunction": 3.4
+  },
+  {
+    "name": "Uranium",
+    "workfunction": 3.765
+  },
+  {
+    "name": "Yttrium",
+    "workfunction": 3.1
+  },
+  {
+    "name": "Zirconium",
+    "workfunction": 4.05
+  }
+]

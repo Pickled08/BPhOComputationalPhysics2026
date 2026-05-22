@@ -55,7 +55,7 @@ def brownian_motion(n, m , r, v, M, R, xmax, ymax,kappa, dt, traceMode):
         for _ in range(steps_per_frame):
             #Check if particles and large particles interact
             distances = np.linalg.norm(particle_pos - large_particle_pos, axis=1)
-            inside_indices = np.where(distances < R)[0]
+            inside_indices = np.where(distances < R + r)[0]
             
             for idx in inside_indices:
                 # Get vector pointing from large particle to small particle
