@@ -8,11 +8,16 @@ import os
 base_dir = os.path.dirname(os.path.abspath(__file__))
 json_path = os.path.join(base_dir, "materials.json")
 
+# Work function values in electronvolts (eV)
+# Source: Chemistry LibreTexts - B1: Workfunction Values (Reference Table)
+# URL: https://chem.libretexts.org/Ancillary_Materials/Reference/Reference_Tables/Bulk_Properties/B1%3A_Workfunction_Values_(Reference_Table)
+
 # Safely load materials.json
 default_materials = [
     {"name": "Silver", "workfunction": 4.5},
     {"name": "Gold", "workfunction": 5.285},
     {"name": "Copper", "workfunction": 4.815},
+    {"name": "Please check that materials.json exists to load more materials", "workfunction": 0.0}
 ]
 
 materials = []
@@ -45,11 +50,60 @@ def intensity_changed(value):
     intensity_label.config(text=f"Intensity: {int(float(value))}%")
 
 def voltage_changed(value):
-    voltage_label.config(text=f"Voltage: {float(value):.1f}V")
+    v = float(value)
+    voltage_label.config(text=f"Voltage: {v:.1f}V")
+    
+    # Only show/scale text if voltage is strictly positive (> 0)
+    if v > 0:
+        # Max voltage is 10. Max font size is 16.
+        # This formula scales the font size proportionally from 1 up to 16, but in reverse since it's negative.
+        # 1. Map the voltage to a fraction between 0.0 and 1.0
+        fraction = abs(v) / 10.0
+        
+        # 2. Apply sine wave scaling: sin(fraction * pi / 2)
+        # When fraction is 1.0, sin(pi/2) = 1.0 (Maximum growth rate)
+        # This makes the font size grow quickly at first, then level off smoothly
+        sinusoidal_scale = np.sin(fraction * (np.pi / 2))
+        
+        # 3. Multiply by your max font size (16)
+        dynamic_size = int(sinusoidal_scale * 16)
+        
+        # Ensure the font size is at least 1 so Tkinter doesn't throw an error
+        if dynamic_size < 1: 
+            dynamic_size = 1
+            
+        # Update the text and make its font size dynamic
+        canvas.itemconfig(metal_text, text="+\n+\n+\n+\n+\n+\n+\n+\n+\n+", font=("Arial", dynamic_size, "bold"), fill="#FF3333")
+    elif v < 0:
+        # Max voltage is -10. Max font size is 16.
+        # This formula scales the font size proportionally from 1 up to 16, but in reverse since it's negative.
+        # 1. Map the voltage to a fraction between 0.0 and 1.0
+        fraction = abs(v) / 10.0
+        
+        # 2. Apply sine wave scaling: sin(fraction * pi / 2)
+        # When fraction is 1.0, sin(pi/2) = 1.0 (Maximum growth rate)
+        # This makes the font size grow quickly at first, then level off smoothly
+        sinusoidal_scale = np.sin(fraction * (np.pi / 2))
+        
+        # 3. Multiply by your max font size (16)
+        dynamic_size = int(sinusoidal_scale * 16)
+        
+        # Ensure the font size is at least 1 so Tkinter doesn't throw an error
+        if dynamic_size < 1: 
+            dynamic_size = 1
+            
+        # Update the text and make its font size dynamic
+        canvas.itemconfig(metal_text, text="-\n-\n-\n-\n-\n-\n-\n-\n-\n-", font=("Arial", dynamic_size, "bold"), fill="#007BFF")
+    else:
+        # If voltage is 0 or negative, hide the text by clearing it
+        canvas.itemconfig(metal_text, text="")
 
 def material_changed(value):
     #get the work function of the selected material
     work_function = next((m["workfunction"] for m in materials if m["name"] == value), None)
+    color = next((m["color"] for m in materials if m["name"] == value), "#000000")
+    if color is not None:
+        canvas.itemconfig(1, fill=color)  # Update the rectangle's fill color
     if work_function is not None:
         work_function_label.config(text=f"Work Function: {work_function} eV")
     material_label.config(text=f"Material: {value}")
@@ -64,7 +118,7 @@ root.geometry("900x600") # Widened the window slightly to fit both sides comfort
 # ==========================================
 
 # 1. Left Frame to hold all sliders and labels
-left_frame = tk.Frame(root)
+left_frame = tk.Frame(root, width=200, height=600)
 left_frame.pack(side="left", fill="y", padx=20, pady=20)
 
 # 2. Right Frame (The Animation Box)
@@ -72,16 +126,31 @@ left_frame.pack(side="left", fill="y", padx=20, pady=20)
 animation_box = tk.LabelFrame(root, text="Simulation Animation", padx=10, pady=10)
 animation_box.pack(side="right", fill="both", expand=True, padx=20, pady=20)
 
-# Optional placeholder label inside the animation box so you can see it
-placeholder_label = tk.Label(animation_box, text="[Animation Component Goes Here]", fg="gray")
-placeholder_label.pack(expand=True)
+canvas = tk.Canvas(animation_box, bg="white", highlightthickness=1, highlightbackground="gray")
+canvas.pack(fill="both", expand=True)
+
+# Draw a rectangle on the canvas
+canvas.create_rectangle(
+    50, 100, 100, 350,   # Position and dimensions
+    fill="lightgray",    # Inside color of the rectangle
+    outline="black",     # Border color
+    width=2              # Border thickness
+)
+
+metal_text = canvas.create_text(
+    75, 225, 
+    text="",  # Starts empty because initial voltage is 0
+    font=("Arial", 1, "bold"), 
+    justify="center",
+    fill="#FF3333" 
+)
 
 
 # ==========================================
 # WIDGETS (Now packed into left_frame)
 # ==========================================
 
-# --- Wavelength Group ---
+# Wavelength Group 
 wavelength_slider = tk.Scale(
     left_frame, # Changed parent to left_frame
     from_=100, 
@@ -127,7 +196,8 @@ material_dropdown.set("Select Material")
 
 material_options = [material["name"] for material in materials]
 material_menu = tk.OptionMenu(left_frame, material_dropdown, *material_options, command=material_changed)
-material_menu.pack(anchor="w", pady=(15, 2))
+material_menu.config(width=15)
+material_menu.pack(anchor="w", fill="x", pady=(15, 2))
 
 material_label = tk.Label(left_frame, text="Material: None")
 material_label.pack(anchor="w", pady=(0, 15))

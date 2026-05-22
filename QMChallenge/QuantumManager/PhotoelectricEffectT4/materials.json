@@ -1,254 +1,317 @@
 [
   {
     "name": "Silver",
-    "workfunction": 4.5
+    "workfunction": 4.500,
+    "color": "#C0C0C0"
   },
   {
     "name": "Gold",
-    "workfunction": 5.285
+    "workfunction": 5.285,
+    "color": "#FFD700"
   },
   {
     "name": "Beryllium",
-    "workfunction": 4.98
+    "workfunction": 4.980,
+    "color": "#94A3A5"
   },
   {
     "name": "Calcium",
-    "workfunction": 2.87
+    "workfunction": 2.870,
+    "color": "#E6E2D3"
   },
   {
     "name": "Cobalt",
-    "workfunction": 5.0
+    "workfunction": 5.000,
+    "color": "#A8B1B8"
   },
   {
     "name": "Copper",
-    "workfunction": 4.815
+    "workfunction": 4.815,
+    "color": "#B87333"
   },
   {
     "name": "Gallium",
-    "workfunction": 4.32
+    "workfunction": 4.320,
+    "color": "#889499"
   },
   {
     "name": "Mercury",
-    "workfunction": 4.475
+    "workfunction": 4.475,
+    "color": "#B7BCC1"
   },
   {
     "name": "Potassium",
-    "workfunction": 2.29
+    "workfunction": 2.290,
+    "color": "#D3D7DB"
   },
   {
     "name": "Lutetium",
-    "workfunction": 3.3
+    "workfunction": 3.300,
+    "color": "#CCD1D1"
   },
   {
     "name": "Molybdenum",
-    "workfunction": 4.655
+    "workfunction": 4.655,
+    "color": "#81878B"
   },
   {
     "name": "Neodymium",
-    "workfunction": 3.2
+    "workfunction": 3.200,
+    "color": "#E3E4E5"
   },
   {
     "name": "Lead",
-    "workfunction": 4.25
+    "workfunction": 4.250,
+    "color": "#7B8085"
   },
   {
     "name": "Rubidium",
-    "workfunction": 2.261
+    "workfunction": 2.261,
+    "color": "#D4CECB"
   },
   {
     "name": "Ruthenium",
-    "workfunction": 4.71
+    "workfunction": 4.710,
+    "color": "#A1A9AD"
   },
   {
     "name": "Selenium",
-    "workfunction": 5.9
+    "workfunction": 5.900,
+    "color": "#4A525A"
   },
   {
     "name": "Tin",
-    "workfunction": 4.42
+    "workfunction": 4.420,
+    "color": "#D7DBDD"
   },
   {
     "name": "Terbium",
-    "workfunction": 3.0
+    "workfunction": 3.000,
+    "color": "#D5D8DC"
   },
   {
     "name": "Titanium",
-    "workfunction": 4.33
+    "workfunction": 4.330,
+    "color": "#8A9597"
   },
   {
     "name": "Vanadium",
-    "workfunction": 4.3
+    "workfunction": 4.300,
+    "color": "#9EA3A7"
   },
   {
     "name": "Ytterbium",
-    "workfunction": 2.6
+    "workfunction": 2.600,
+    "color": "#ECEFF1"
   },
   {
     "name": "Aluminium",
-    "workfunction": 4.16
+    "workfunction": 4.160,
+    "color": "#D1D5DB"
   },
   {
     "name": "Boron",
-    "workfunction": 4.45
+    "workfunction": 4.450,
+    "color": "#303030"
   },
   {
     "name": "Bismuth",
-    "workfunction": 4.31
+    "workfunction": 4.310,
+    "color": "#E3C9C9"
   },
   {
     "name": "Cadmium",
-    "workfunction": 4.08
+    "workfunction": 4.080,
+    "color": "#D5DBDB"
   },
   {
     "name": "Chromium",
-    "workfunction": 4.5
+    "workfunction": 4.500,
+    "color": "#969696"
   },
   {
     "name": "Europium",
-    "workfunction": 2.5
+    "workfunction": 2.500,
+    "color": "#FAEBD7"
   },
   {
     "name": "Gadolinium",
-    "workfunction": 2.9
+    "workfunction": 2.900,
+    "color": "#D2D7DF"
   },
   {
     "name": "Indium",
-    "workfunction": 4.09
+    "workfunction": 4.090,
+    "color": "#C2C7CE"
   },
   {
     "name": "Lanthanum",
-    "workfunction": 3.5
+    "workfunction": 3.500,
+    "color": "#E5E8E8"
   },
   {
     "name": "Magnesium",
-    "workfunction": 3.66
+    "workfunction": 3.660,
+    "color": "#E2E4E6"
   },
   {
     "name": "Sodium",
-    "workfunction": 2.36
+    "workfunction": 2.360,
+    "color": "#E1E4E6"
   },
   {
     "name": "Nickel",
-    "workfunction": 5.195
+    "workfunction": 5.195,
+    "color": "#AAB7B8"
   },
   {
     "name": "Palladium",
-    "workfunction": 5.41
+    "workfunction": 5.410,
+    "color": "#CED4D7"
   },
   {
     "name": "Rhenium",
-    "workfunction": 4.72
+    "workfunction": 4.720,
+    "color": "#8C92AC"
   },
   {
     "name": "Antimony",
-    "workfunction": 4.625
+    "workfunction": 4.625,
+    "color": "#D0D3D4"
   },
   {
     "name": "Silicon",
-    "workfunction": 4.725
+    "workfunction": 4.725,
+    "color": "#5D6D7E"
   },
   {
     "name": "Strontium",
-    "workfunction": 2.59
+    "workfunction": 2.590,
+    "color": "#EAECEE"
   },
   {
     "name": "Tellurium",
-    "workfunction": 4.95
+    "workfunction": 4.950,
+    "color": "#85929E"
   },
   {
     "name": "Thallium",
-    "workfunction": 3.84
+    "workfunction": 3.840,
+    "color": "#A6ACAF"
   },
   {
     "name": "Tungsten",
-    "workfunction": 4.77
+    "workfunction": 4.770,
+    "color": "#7F8C8D"
   },
   {
     "name": "Zinc",
-    "workfunction": 4.265
+    "workfunction": 4.265,
+    "color": "#707B7C"
   },
   {
     "name": "Arsenic",
-    "workfunction": 3.75
+    "workfunction": 3.750,
+    "color": "#566573"
   },
   {
     "name": "Barium",
-    "workfunction": 2.61
+    "workfunction": 2.610,
+    "color": "#D5DBDB"
   },
   {
     "name": "Carbon",
-    "workfunction": 5.0
+    "workfunction": 5.000,
+    "color": "#1C2833"
   },
   {
     "name": "Cerium",
-    "workfunction": 2.9
+    "workfunction": 2.900,
+    "color": "#BDC3C7"
   },
   {
     "name": "Caesium",
-    "workfunction": 2.1
+    "workfunction": 2.100,
+    "color": "#E5E7E9"
   },
   {
     "name": "Iron",
-    "workfunction": 4.74
+    "workfunction": 4.740,
+    "color": "#7F8C8D"
   },
   {
     "name": "Hafnium",
-    "workfunction": 3.9
+    "workfunction": 3.900,
+    "color": "#99A3A4"
   },
   {
     "name": "Iridium",
-    "workfunction": 5.335
+    "workfunction": 5.335,
+    "color": "#BDC3C7"
   },
   {
     "name": "Lithium",
-    "workfunction": 2.9
+    "workfunction": 2.900,
+    "color": "#B2BABB"
   },
   {
     "name": "Manganese",
-    "workfunction": 4.1
+    "workfunction": 4.100,
+    "color": "#909497"
   },
   {
     "name": "Niobium",
-    "workfunction": 4.41
+    "workfunction": 4.410,
+    "color": "#A6ACAF"
   },
   {
     "name": "Osmium",
-    "workfunction": 5.93
+    "workfunction": 5.930,
+    "color": "#AEB6BF"
   },
   {
     "name": "Platinum",
-    "workfunction": 5.525
+    "workfunction": 5.525,
+    "color": "#E5E7E9"
   },
   {
     "name": "Rhodium",
-    "workfunction": 4.98
+    "workfunction": 4.980,
+    "color": "#F2F4F4"
   },
   {
     "name": "Scandium",
-    "workfunction": 3.5
+    "workfunction": 3.500,
+    "color": "#D5DBDB"
   },
   {
     "name": "Samarium",
-    "workfunction": 2.7
+    "workfunction": 2.700,
+    "color": "#F4F6F7"
   },
   {
     "name": "Tantalum",
-    "workfunction": 4.4
+    "workfunction": 4.400,
+    "color": "#7F8C8D"
   },
   {
     "name": "Thorium",
-    "workfunction": 3.4
+    "workfunction": 3.400,
+    "color": "#A6ACAF"
   },
   {
     "name": "Uranium",
-    "workfunction": 3.765
+    "workfunction": 3.765,
+    "color": "#5D6D7E"
   },
   {
     "name": "Yttrium",
-    "workfunction": 3.1
+    "workfunction": 3.100,
+    "color": "#D5DBDB"
   },
   {
     "name": "Zirconium",
-    "workfunction": 4.05
+    "workfunction": 4.050,
+    "color": "#BDC3C7"
   }
 ]

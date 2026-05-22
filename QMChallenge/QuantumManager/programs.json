@@ -8,5 +8,10 @@
     "name": "Brownian Motion",
     "path": "BrownianMotionT2/brownianmotion.py",
     "args": []
+  },
+  {
+    "name": "Photoelectric Effect",
+    "path": "PhotoelectricEffectT4/photoelecticeffect.py",
+    "args": []
   }
 ]
