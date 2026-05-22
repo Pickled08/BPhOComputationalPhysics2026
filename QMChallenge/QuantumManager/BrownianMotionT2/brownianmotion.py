@@ -14,7 +14,7 @@ def on_closing():
     plt.close('all') # Closes any open Matplotlib windows
     exit()
     
-def brownian_motion(n, m , r, v, M, R, xmax, ymax,kappa, dt, traceMode):
+def brownian_motion(n, m , r, v, M, R, xmax, ymax,kappa, dt, traceMode, title):
         
     rng = np.random.default_rng()
 
@@ -40,9 +40,6 @@ def brownian_motion(n, m , r, v, M, R, xmax, ymax,kappa, dt, traceMode):
     # Clean up the plot 
     plt.xlim(0, xmax)
     plt.ylim(0, ymax)
-    plt.xlabel("X Position")
-    plt.ylabel("Y Position")
-    plt.title("Particle Positions")
     plt.ion()
     
     plt.scatter(particle_pos[:, 0], particle_pos[:, 1], s=10)
@@ -156,6 +153,10 @@ def brownian_motion(n, m , r, v, M, R, xmax, ymax,kappa, dt, traceMode):
         plt.xlim(0, xmax)
         plt.ylim(0, ymax)
         
+        plt.xlabel("X Position (nm)")
+        plt.ylabel("Y Position (nm)")
+        plt.title(title)
+        
         actual_elapsed = time.perf_counter() - start_time
         time_to_wait = sim_elapsed - actual_elapsed
         if time_to_wait > 0:
@@ -175,7 +176,7 @@ frame.grid()
 n_var = tk.StringVar(value="500")
 m_var = tk.StringVar(value="1")
 r_var = tk.StringVar(value="0.1")
-v_var = tk.StringVar(value="20")
+v_var = tk.StringVar(value="400")
 M_var = tk.StringVar(value="10")
 R_var = tk.StringVar(value="10")
 xmax_var = tk.StringVar(value="100")
@@ -183,42 +184,55 @@ ymax_var = tk.StringVar(value="100")
 kappa_var = tk.StringVar(value="500")
 dt_var = tk.StringVar(value="0.001")
 traceMode = tk.BooleanVar(value=True)
+pico_second_mode = tk.BooleanVar(value=True)
+pico_second_map = tk.StringVar(value="100")
 
 # Inputs
 
-ttk.Label(frame, text="Particle Count (n)").grid(row=5, column=0, sticky="w", padx=5, pady=2)
+ttk.Label(frame, text="Particle Count").grid(row=5, column=0, sticky="w", padx=5, pady=2)
 ttk.Entry(frame, textvariable=n_var).grid(row=5, column=1, padx=5, pady=2)
 
-ttk.Label(frame, text="Mass of Particles(m)").grid(row=6, column=0, sticky="w", padx=5, pady=2)
+ttk.Label(frame, text="Mass of Particles (Daltons)").grid(row=6, column=0, sticky="w", padx=5, pady=2)
 ttk.Entry(frame, textvariable=m_var).grid(row=6, column=1, padx=5, pady=2)
 
-ttk.Label(frame, text="Radius of Particles (r)").grid(row=7, column=0, sticky="w", padx=5, pady=2)
+ttk.Label(frame, text="Radius of Particles (nm)").grid(row=7, column=0, sticky="w", padx=5, pady=2)
 ttk.Entry(frame, textvariable=r_var).grid(row=7, column=1, padx=5, pady=2)
 
-ttk.Label(frame, text="Inital Velocity (v)").grid(row=8, column=0, sticky="w", padx=5, pady=2)
+ttk.Label(frame, text="Inital Velocity (m/s)").grid(row=8, column=0, sticky="w", padx=5, pady=2)
 ttk.Entry(frame, textvariable=v_var).grid(row=8, column=1, padx=5, pady=2)
 
-ttk.Label(frame, text="Mass of Large Particle(M)").grid(row=9, column=0, sticky="w", padx=5, pady=2)
+ttk.Label(frame, text="Mass of Large Particle (Daltons)").grid(row=9, column=0, sticky="w", padx=5, pady=2)
 ttk.Entry(frame, textvariable=M_var).grid(row=9, column=1, padx=5, pady=2)
 
-ttk.Label(frame, text="Radius or Large Particle (R)").grid(row=10, column=0, sticky="w", padx=5, pady=2)
+ttk.Label(frame, text="Radius of Large Particle (nm)").grid(row=10, column=0, sticky="w", padx=5, pady=2)
 ttk.Entry(frame, textvariable=R_var).grid(row=10, column=1, padx=5, pady=2)
 
-ttk.Label(frame, text="Max Width (xmax)").grid(row=11, column=0, sticky="w", padx=5, pady=2)
+ttk.Label(frame, text="Max Width (nm)").grid(row=11, column=0, sticky="w", padx=5, pady=2)
 ttk.Entry(frame, textvariable=xmax_var).grid(row=11, column=1, padx=5, pady=2)
 
-ttk.Label(frame, text="Max Height (ymax)").grid(row=12, column=0, sticky="w", padx=5, pady=2)
+ttk.Label(frame, text="Max Height (nm)").grid(row=12, column=0, sticky="w", padx=5, pady=2)
 ttk.Entry(frame, textvariable=ymax_var).grid(row=12, column=1, padx=5, pady=2)
 
 ttk.Label(frame, text="Physics Kappa").grid(row=13, column=0, sticky="w", padx=5, pady=2)
 ttk.Entry(frame, textvariable=kappa_var).grid(row=13, column=1, padx=5, pady=2)
 
-ttk.Label(frame, text="Time Step (dt)").grid(row=14, column=0, sticky="w", padx=5, pady=2)
-ttk.Entry(frame, textvariable=dt_var).grid(row=14, column=1, padx=5, pady=2)
+ttk.Label(frame, text="Trace Mode").grid(row=14, column=0, sticky="w", padx=5, pady=2)
+ttk.Checkbutton(frame, text="On/Off", variable=traceMode).grid(row=14, column=1, sticky="w", padx=5, pady=2)
 
-ttk.Label(frame, text="Trace Mode").grid(row=15, column=0, sticky="w", padx=5, pady=2)
-ttk.Checkbutton(frame, text="On/Off", variable=traceMode).grid(row=15, column=1, sticky="w", padx=5, pady=2)
-# Button
+ttk.Label(frame, text="Picosecond Mode").grid(row=15, column=0, sticky="w", padx=5, pady=2)
+ttk.Checkbutton(frame, text="On/Off", variable=pico_second_mode).grid(row=15, column=1, sticky="w", padx=5, pady=2)
+
+ttk.Label(frame, text="Picoseconds").grid(row=16, column=0, sticky="w", padx=5, pady=2)
+ttk.Entry(frame, textvariable=pico_second_map).grid(row=16, column=1, padx=5, pady=2)
+
+if pico_second_mode.get() == True:
+    sim_time_map = f"{pico_second_map.get()}ps"
+else:
+        sim_time_map = "1ns"
+
+title = f"Brownian Motion Simulation, 1s simulation time = {sim_time_map} "
+
+print(title)
 ttk.Button(
     frame, 
     text="Run Simulation", 
@@ -226,16 +240,17 @@ ttk.Button(
         int(n_var.get()),
         float(m_var.get()),
         float(r_var.get()),
-        float(v_var.get()),
+        float(v_var.get()) * (float(int(pico_second_map.get())/1000)) if pico_second_mode.get() else float(v_var.get()),
         float(M_var.get()),
         float(R_var.get()),
         float(xmax_var.get()),
         float(ymax_var.get()),
         float(kappa_var.get()),
         float(dt_var.get()),
-        bool(traceMode.get())
+        bool(traceMode.get()),
+        f"Brownian Motion Simulation, 1s simulation time = {f'{pico_second_map.get()}ps' if pico_second_mode.get() else '1ns'}"
     )
-).grid(row=16, column=0, columnspan=2, pady=10)
+).grid(row=17, column=0, columnspan=2, pady=10)
 
 # Matplotlib interactive mode
 plt.ion()
