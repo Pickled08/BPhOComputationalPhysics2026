@@ -8,6 +8,8 @@ from PIL import Image, ImageTk, ImageDraw
 import threading
 import time
 
+from plot_SP_F import plot_SP_F
+
 # Load program configurations
 base_dir = os.path.dirname(os.path.abspath(__file__))
 json_path = os.path.join(base_dir, "materials.json")
@@ -462,6 +464,7 @@ tk.Label(
 ttk.Button(
     left_frame,
     text="Draw Stop Potential vs Frequency Graph",
+    command=lambda: threading.Thread(target=plot_SP_F, args=(work_function,), daemon=True).start()
 ).pack(fill="x", pady=5)
 ttk.Button(
     left_frame,
