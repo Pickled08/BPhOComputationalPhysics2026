@@ -10,7 +10,7 @@ m =25 #kg
 g = np.array([0,-9.81]) #kgN^-1
 theta = 0.588176 #rads
 mu = 1 #coefficient of friction
-force_applied = 0
+force_applied = 1
 
 weight = m * g
 
