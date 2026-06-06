@@ -11,6 +11,7 @@ import time
 #Import graphing functions
 from plot_SP_F import plot_SP_F
 from plot_KE_F import plot_KE_F
+from plot_current_V import plot_current_V
 
 # Load program configurations
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -34,6 +35,7 @@ voltage = 0.0 #voltage in volts, default to 0V
 work_function = None #work function in eV, default to None until a material is selected
 photons_per_second = 0.0 #calculated photons per second based on wavelength and intensity
 stopping_potential = None #calculated stopping potential based on work function and wavelength, default to None until a material is selected
+intensity_lamp = 1 #1Wm^-2 treat this as 1w output from the lamp for simplicity
 
 polygon_points = [(300, 200), (300, 450), (750, 150), (650, 50)]
 
@@ -171,7 +173,12 @@ def wavelength_changed(value):
     photon_energy = frequency * 6.62607015e-34
     photon_energy_eV = photon_energy / 1.60217663e-19
     electron_kinetic_energy = photon_energy_eV - work_function #in eV
-    stopping_potential = electron_kinetic_energy 
+    stopping_potential = electron_kinetic_energy
+    if electron_kinetic_energy < 0:
+        stopping_potential = 0.0 
+    stopping_potential_label.config(text=f"Stopping Potential: {stopping_potential:.2f} V" if stopping_potential is not None else "Stopping Potential: N/A")
+    if stopping_potential <= 0.0:
+        stopping_potential_label.config(text="Stopping Potential: N/A V")
 
 def intensity_changed(value):
     global intensity
@@ -248,7 +255,12 @@ def voltage_changed(value):
     photon_energy = frequency * 6.62607015e-34
     photon_energy_eV = photon_energy / 1.60217663e-19
     electron_kinetic_energy = photon_energy_eV - work_function #in eV
+    if electron_kinetic_energy < 0:
+        electron_kinetic_energy = 0.0
     stopping_potential = electron_kinetic_energy 
+    stopping_potential_label.config(text=f"Stopping Potential: {stopping_potential:.2f} V" if stopping_potential is not None else "Stopping Potential: N/A")
+    if stopping_potential  <= 0.0:
+        stopping_potential_label.config(text="Stopping Potential: N/A V")
     
 def material_changed(value):
     #get the work function of the selected material
@@ -266,12 +278,17 @@ def material_changed(value):
     photon_energy = frequency * 6.62607015e-34
     photon_energy_eV = photon_energy / 1.60217663e-19
     electron_kinetic_energy = photon_energy_eV - work_function #in eV
+    if electron_kinetic_energy < 0:
+        electron_kinetic_energy = 0.0
     stopping_potential = electron_kinetic_energy 
+    stopping_potential_label.config(text=f"Stopping Potential: {stopping_potential:.2f} V" if stopping_potential is not None else "Stopping Potential: N/A")
+    if stopping_potential  <= 0.0:
+        stopping_potential_label.config(text="Stopping Potential: N/A V")
 
 # Create the main window
 root = tk.Tk()
 root.title("Photoelectric Effect Simulation")
-root.geometry("1400x800")
+root.geometry("1450x800")
 
 # ==========================================
 # LAYOUT STRUCTURE (The Left/Right Split)
@@ -468,6 +485,9 @@ material_label.pack(anchor="w", pady=(0, 15))
 work_function_label = tk.Label(left_frame, text="Work Function: N/A")
 work_function_label.pack(anchor="w", pady=(0, 15))
 
+stopping_potential_label = tk.Label(left_frame, text="Stopping Potential: N/A")
+stopping_potential_label.pack(anchor="w", pady=(0, 15))
+
 #Button to start the simulation loop (for testing purposes, can be removed or hidden in final version)
 def toggle_simulation():
     global RUN_SIMULATION
@@ -495,9 +515,15 @@ ttk.Button(
     text="Draw KE vs Frequency Graph",
     command=lambda: threading.Thread(target=plot_KE_F, args=(work_function,), daemon=True).start()
 ).pack(fill="x", pady=5)
-
+ttk.Button(
+    left_frame,
+    text="Current vs Voltage Graph",
+    command=lambda: threading.Thread(target=plot_current_V, args=(wavelength, work_function, intensity, quantum_efficiency, stopping_potential, intensity_lamp), daemon=True).start()
+).pack(fill="x", pady=5)
     
 def hit_left_electrode(photon_coords, wavelength_photon):
+    global voltage
+    global stopping_potential
     
     # Check if work function is defined for the selected material
     if work_function is None:
@@ -515,27 +541,64 @@ def hit_left_electrode(photon_coords, wavelength_photon):
     else:
         electron_kinetic_energy = photon_energy - work_function_joules
         
-    speed_of_electron = np.sqrt(2 * electron_kinetic_energy / 9.1093837e-31)
     
     
     electron = canvas.create_oval(300, photon_coords[1], 310, photon_coords[1] + 10, fill="yellow", outline="black")
     
-    def animate_electron():
+    def animate_electron(electron_kinetic_energy):
+        global voltage, stopping_potential
+
+        ELECTRODE_GAP_M = 0.05
+        SPEED_SCALE = 1 / 10000.0
+        PIXEL_GAP = 435.0
+
+        #Max Speed at max kinetic energy, scaled for display purposes
+        speed_display = np.sqrt(2 * electron_kinetic_energy / 9.1093837e-31) * SPEED_SCALE
+
+        # At stopping potential, electron should just reach the anode
+        stopping_force = (1.6021766e-19 * stopping_potential) / ELECTRODE_GAP_M
+        stopping_accel_physical = stopping_force / 9.1093837e-31
+        required_decel = (speed_display ** 2) / (2 * PIXEL_GAP)
+        ACCEL_SCALE = required_decel / stopping_accel_physical
         
-        speed_display = speed_of_electron / 10000.0
-        dt = 0.05
-        step = speed_display * dt
+        #Give electons a range of kinetic energies based on the photon energy and work function, to create a more dynamic animation. KE max is electron_kinetic_energy
+        electron_kinetic_energy_dist = np.random.uniform(0, electron_kinetic_energy)
         
+        speed_display = np.sqrt(2 * electron_kinetic_energy_dist / 9.1093837e-31) * SPEED_SCALE
+
+        x_velocity = speed_display
+        dt = 0.01
+
         for _ in range(50000):
-            
-            canvas.move(electron, step, 0)  # Move left towards the right electrode
-            time.sleep(dt)  # Pause for a short time to create animation effect
-            if canvas.coords(electron)[0] > 735: # If the electron has hit the right electrode
+
+            force = (1.6021766e-19 * voltage) / ELECTRODE_GAP_M
+            acceleration = (-force / 9.1093837e-31) * ACCEL_SCALE
+
+            x_velocity += acceleration * dt
+            step = x_velocity * dt
+
+            canvas.move(electron, step, 0)
+            time.sleep(dt)
+
+            coords = canvas.coords(electron)
+            if not coords:
+                return
+
+            x_pos = coords[0]
+
+            if x_pos <= 300:
+                canvas.delete(electron)
+                return
+
+            if x_pos > 735:
                 break
-            if RUN_SIMULATION == False:
+
+            if not RUN_SIMULATION:
                 break
-        canvas.delete(electron)  # Remove the electron after it moves across the screen
-    threading.Thread(target=animate_electron).start()
+
+        canvas.delete(electron)
+
+    threading.Thread(target=animate_electron, args=(electron_kinetic_energy,), daemon=True).start()
 
 def create_starburst(canvas, x, y, color, size=8):
     points = []
@@ -561,7 +624,7 @@ def create_photon(wavelength_photon):
         dt = 0.01  # Time delay between each movement step (in seconds)
         step = np.array([speed * np.cos(angle) * dt, speed * np.sin(angle) * dt])
         
-        for _ in range(150):
+        for _ in range(500):
             canvas.move(photon, step[0], step[1])  # Move right and slightly down to follow the path towards the right electrode
             canvas.tag_lower(photon, left_electrode)
             time.sleep(dt)  # Pause for a short time to create animation effect
@@ -571,14 +634,14 @@ def create_photon(wavelength_photon):
             if RUN_SIMULATION == False:
                 break
         canvas.delete(photon)  # Remove the photon after it moves across the screen
-    threading.Thread(target=animate_photon).start()
+    threading.Thread(target=animate_photon, daemon=True).start()
 
 def photoelectric_effect():
     
     global photons_per_second
     global RUN_SIMULATION
+    global intensity_lamp
     
-    intensity_lamp = 1 #1Wm^-2 treat this as 1w output from the lamp for simplicity
     last_photon_time = 0.0
     
     while True:
@@ -614,13 +677,16 @@ def calculate_current():
         while RUN_SIMULATION:
             electron_charge = 1.6021766e-19
             electrons_per_second = photons_per_second * (1 if work_function is not None and (6.6260702e-34 * (299792458 / (wavelength * 1e-9))) >= (work_function * electron_charge) else 0) * quantum_efficiency
-            current = electrons_per_second * electron_charge
-
-            print(stopping_potential, voltage)
-            if stopping_potential is not None and stopping_potential < voltage:
+            current_max = electrons_per_second * electron_charge
+            current = current_max
+            
+            if voltage > 0 and stopping_potential is not None:
+                current = (-current_max/stopping_potential * voltage) + current_max
+                
+            if stopping_potential is not None and stopping_potential <= voltage:
                 current = 0.0
 
-            canvas.itemconfig(current_label, text=f"Current: {current:.3f} A")
+            canvas.itemconfig(current_label, text=f"Current: {current:.4f} A")
             time.sleep(0.1)  # Update current every 0.1 seconds
         time.sleep(0.1)  # Sleep briefly when simulation is not running to prevent tight loop
         
