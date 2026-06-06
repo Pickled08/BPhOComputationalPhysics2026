@@ -172,6 +172,9 @@ def wavelength_changed(value):
     frequency = 299792458 / (wavelength * 1e-9)
     photon_energy = frequency * 6.62607015e-34
     photon_energy_eV = photon_energy / 1.60217663e-19
+    if work_function is None:
+        stopping_potential_label.config(text="Stopping Potential: N/A")
+        return
     electron_kinetic_energy = photon_energy_eV - work_function #in eV
     stopping_potential = electron_kinetic_energy
     if electron_kinetic_energy < 0:
@@ -254,6 +257,9 @@ def voltage_changed(value):
     frequency = 299792458 / (wavelength * 1e-9)
     photon_energy = frequency * 6.62607015e-34
     photon_energy_eV = photon_energy / 1.60217663e-19
+    if work_function is None:
+        stopping_potential_label.config(text="Stopping Potential: N/A")
+        return
     electron_kinetic_energy = photon_energy_eV - work_function #in eV
     if electron_kinetic_energy < 0:
         electron_kinetic_energy = 0.0
@@ -267,7 +273,7 @@ def material_changed(value):
     global work_function
     global stopping_potential
     work_function = next((m["workfunction"] for m in materials if m["name"] == value), None)
-    color = next((m["color"] for m in materials if m["name"] == value), "#000000")
+    color = next((m.get("color", "#b0b0b0") for m in materials if m["name"] == value), "#b0b0b0")
     if color is not None:
         canvas.itemconfig(1, fill=color)  # Update the rectangle's fill color
     if work_function is not None:
@@ -662,6 +668,10 @@ def photoelectric_effect():
                 photons_per_second_displayed = photons_per_second / 1e16
                 interval = 1.0 / photons_per_second_displayed if photons_per_second_displayed > 0 else float('inf')
             else:
+                interval = float('inf')
+                
+            if intensity == 0 or wavelength == 0:
+                photons_per_second = 0.0
                 interval = float('inf')
 
             if interval != float('inf') and (now - last_photon_time) >= interval:
