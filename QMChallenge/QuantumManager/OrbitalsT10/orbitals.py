@@ -2,6 +2,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy
 from numba import njit
+import pyvista as pv
+
+#GLOBALS
+RENDER_MODE = "cube"
+RANDOMISE = True
 
 #Universal Constants
 PERMITTIVITY_FREE_SPACE = scipy.constants.epsilon_0
@@ -15,12 +20,11 @@ ATOMIC_MASS_UNIT = scipy.constants.u
 BOHR_RADIUS = scipy.constants.physical_constants['Bohr radius'][0]
 
 # input parameters
-Z = 1  # Atomic number (Hydrogen)
+Z = 1  # Atomic number
 A = 1  # Mass number
-n = 2  # Principal quantum number (2nd shell)
-l = 0  # Azimuthal quantum number (s-orbital)
-m = 0  # Magnetic quantum number
-
+n = 5  # Principal quantum number
+l = 4  # Azimuthal quantum number
+m = 3  # Magnetic quantum number
 
 
 #Start of Computation
@@ -134,6 +138,111 @@ def plot_probability_density_2d(n, l, m):
     plt.tight_layout()
     plt.show()
 
-   
+def gen_points_3d_cloud(threshold, range_input, num_range):
+    # Generate Points
+    range_extent = range_input * hydrogenic_atomic_radius
+
+    x = np.linspace(-range_extent, range_extent, num_range)
+    y = np.linspace(-range_extent, range_extent, num_range)
+    z = np.linspace(-range_extent, range_extent, num_range)
+
+    X, Y, Z = np.meshgrid(x, y, z, indexing='ij')    
+    
+    points = np.column_stack((X.ravel(), Y.ravel(), Z.ravel()))
+    
+    R_pts     = np.sqrt(points[:,0]**2 + points[:,1]**2 + points[:,2]**2)
+    THETA_pts = np.arccos(np.clip(points[:,2] / (R_pts + 1e-30), -1, 1))# polar angle from Z
+    PHI_pts   = np.arctan2(points[:,1], points[:,0])# azimuthal angle
+    
+    psi = wavefunction(R_pts, THETA_pts, PHI_pts)
+    
+    pd_values = np.abs(psi)**2
+    pd_normalised = pd_values / pd_values.max()  # scale to [0, 1]
+    
+    threshold_mask = pd_normalised > threshold
+    random_mask = np.random.random(len(pd_normalised)) < pd_normalised
+    
+    if RENDER_MODE == "cube" or RANDOMISE != True:
+        random_mask=threshold_mask
+
+    combined_mask = threshold_mask & random_mask
+
+    cloud = pv.PolyData(points[combined_mask])
+    cloud["probability_density"] = pd_normalised[combined_mask]
+        
+    return cloud
+
+def gen_points_3d_monte_carlo(N,range_input):
+    
+    range_extent = range_input * hydrogenic_atomic_radius
+    
+    points = np.random.uniform(-range_extent, range_extent, size=(N, 3))
+
+    R_pts     = np.sqrt(points[:,0]**2 + points[:,1]**2 + points[:,2]**2)
+    THETA_pts = np.arccos(np.clip(points[:,2] / (R_pts + 1e-30), -1, 1))
+    PHI_pts   = np.arctan2(points[:,1], points[:,0])
+
+    psi = wavefunction(R_pts, THETA_pts, PHI_pts)
+
+    pd_values = np.abs(psi)**2
+    pd_normalised = pd_values / pd_values.max()
+
+    random_mask = np.random.random(N) < pd_normalised
+
+    monte_carlo = pv.PolyData(points[random_mask])
+    monte_carlo["probability_density"] = pd_normalised[random_mask]
+    
+    return monte_carlo
     
     
+def plot_probability_density_3d(n, l, m, range_input, num_range, threshold, cmap):
+    
+    range_extent = range_input * hydrogenic_atomic_radius
+    
+    N = 1000000
+    
+    #data=gen_points_3d_cloud(threshold, range_input ,num_range)
+    data=gen_points_3d_monte_carlo(N, range_input)
+    
+    plotter = pv.Plotter(window_size=(900, 700))
+    
+    if RENDER_MODE == "cube":
+        cube = pv.Cube()
+        glyphs = data.glyph(geom=cube, scale=False, orient=False, factor=range_extent/(num_range/2))
+        plotter.add_mesh(glyphs, scalars="probability_density", cmap=cmap, opacity=0.85)
+    else:#Default to scatter
+        plotter.add_mesh(
+        data,
+        point_size=8,#sphere radius in pixels
+        scalars="probability_density",
+        cmap=cmap,
+        render_points_as_spheres=True,
+        opacity=0.85,
+        )
+    
+    plotter.add_text(
+        f"3-D Probability Density: n={n}, l={l}, m={m}",
+        position="upper_edge",
+        font_size=12,
+        color="white",
+    )
+
+    plotter.show_bounds(
+        grid='back',
+        location='outer',
+        color='white',
+        xtitle="X (m)",
+        ytitle="Y (m)",
+        ztitle="Z (m)",
+        font_size=10,
+        fmt="%.1e",
+    )
+        
+    plotter.add_axes(interactive=True)
+    
+    plotter.background_color = 'black'
+    plotter.camera_position = "iso" # isometric starting view
+    
+    plotter.show()
+    
+plot_probability_density_3d(n, l, m, 40, 200, 0.1, "inferno")
