@@ -14,12 +14,13 @@ EULER_NUM = np.e
 ATOMIC_MASS_UNIT = scipy.constants.u
 BOHR_RADIUS = scipy.constants.physical_constants['Bohr radius'][0]
 
-#input parameters
+# input parameters
 Z = 1  # Atomic number (Hydrogen)
 A = 1  # Mass number
-n = 2  # Principal quantum number
-l = 0  # Azimuthal quantum number
-m = 0 # Magnetic quantum number
+n = 2  # Principal quantum number (2nd shell)
+l = 0  # Azimuthal quantum number (s-orbital)
+m = 0  # Magnetic quantum number
+
 
 
 #Start of Computation
@@ -124,7 +125,7 @@ def plot_probability_density_2d(n, l, m):
     probability_density = np.abs(psi)**2
 
     fig, ax = plt.subplots(figsize=(8, 8))
-    mesh = ax.pcolormesh(X, Z, probability_density, shading='auto', cmap='hot')
+    mesh = ax.pcolormesh(X, Z, probability_density, shading='auto', cmap='inferno')
     plt.colorbar(mesh, ax=ax, label='Probability Density')
     ax.set_title(f'Probability Density (XZ cross-section) n={n}, l={l}, m={m}')
     ax.set_xlabel('x (m)')
@@ -132,8 +133,7 @@ def plot_probability_density_2d(n, l, m):
     ax.set_aspect('equal')
     plt.tight_layout()
     plt.show()
-   
-plot_probability_density_2d(n, l, m)
+
    
     
     
