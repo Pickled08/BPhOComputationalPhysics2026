@@ -24,7 +24,7 @@ Z = 1  # Atomic number
 A = 1  # Mass number
 n = 5  # Principal quantum number
 l = 4  # Azimuthal quantum number
-m = 3  # Magnetic quantum number
+m = 0  # Magnetic quantum number
 
 
 #Start of Computation
@@ -245,4 +245,4 @@ def plot_probability_density_3d(n, l, m, range_input, num_range, threshold, cmap
     
     plotter.show()
     
-plot_probability_density_3d(n, l, m, 40, 200, 0.1, "inferno")
+plot_probability_density_3d(n, l, m, 40, 200, 0.1, "rainbow")
