@@ -5,8 +5,8 @@ from numba import njit
 import pyvista as pv
 
 #GLOBALS
-RENDER_MODE = "cube"
-RANDOMISE = True
+RENDER_MODE = "scatter"
+RANDOMISE = 0
 
 #Universal Constants
 PERMITTIVITY_FREE_SPACE = scipy.constants.epsilon_0
@@ -24,7 +24,7 @@ Z = 1  # Atomic number
 A = 1  # Mass number
 n = 5  # Principal quantum number
 l = 4  # Azimuthal quantum number
-m = 3  # Magnetic quantum number
+m = 0  # Magnetic quantum number
 
 
 #Start of Computation
@@ -201,8 +201,8 @@ def plot_probability_density_3d(n, l, m, range_input, num_range, threshold, cmap
     
     N = 1000000
     
-    #data=gen_points_3d_cloud(threshold, range_input ,num_range)
-    data=gen_points_3d_monte_carlo(N, range_input)
+    data=gen_points_3d_cloud(threshold, range_input ,num_range)
+    #data=gen_points_3d_monte_carlo(N, range_input)
     
     plotter = pv.Plotter(window_size=(900, 700))
     
@@ -245,4 +245,4 @@ def plot_probability_density_3d(n, l, m, range_input, num_range, threshold, cmap
     
     plotter.show()
     
-plot_probability_density_3d(n, l, m, 40, 200, 0.1, "inferno")
+plot_probability_density_3d(n, l, m, 40, 200, 0.1, "rainbow")

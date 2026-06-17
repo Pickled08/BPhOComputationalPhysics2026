@@ -1,8 +1,11 @@
 import numpy as np # Numpy: Math functions and arrays 
 import matplotlib.pyplot as plt # Matplotlib: plotting
+import matplotlib as mpl
 import tkinter as tk
 from tkinter import ttk
 import time
+
+mpl.rcParams['toolbar'] = 'None'
 
 global running
 running = True
@@ -41,6 +44,7 @@ def brownian_motion(n, m , r, v, M, R, xmax, ymax,kappa, dt, traceMode, title):
     plt.xlim(0, xmax)
     plt.ylim(0, ymax)
     plt.ion()
+    
     
     plt.scatter(particle_pos[:, 0], particle_pos[:, 1], s=10)
     
@@ -253,6 +257,7 @@ ttk.Button(
 ).grid(row=17, column=0, columnspan=2, pady=10)
 
 # Matplotlib interactive mode
+
 plt.ion()
 plt.figure()
 
