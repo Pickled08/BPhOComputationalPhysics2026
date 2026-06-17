@@ -13,5 +13,10 @@
     "name": "Photoelectric Effect",
     "path": "PhotoelectricEffectT4/photoelecticeffect.py",
     "args": []
+  },
+    {
+    "name": "Orbtials",
+    "path": "OrbitalsT10/orbitals.py",
+    "args": []
   }
 ]
