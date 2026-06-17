@@ -3,10 +3,8 @@ import matplotlib.pyplot as plt
 import scipy
 from numba import njit
 import pyvista as pv
-
-#GLOBALS
-RENDER_MODE = "cube"
-RANDOMISE = True
+import tkinter as tk
+from tkinter import ttk
 
 #Universal Constants
 PERMITTIVITY_FREE_SPACE = scipy.constants.epsilon_0
@@ -138,7 +136,7 @@ def plot_probability_density_2d(n, l, m):
     plt.tight_layout()
     plt.show()
 
-def gen_points_3d_cloud(threshold, range_input, num_range):
+def gen_points_3d_cloud(threshold, range_input, num_range, render_type, noise=False):
     # Generate Points
     range_extent = range_input * hydrogenic_atomic_radius
 
@@ -162,7 +160,7 @@ def gen_points_3d_cloud(threshold, range_input, num_range):
     threshold_mask = pd_normalised > threshold
     random_mask = np.random.random(len(pd_normalised)) < pd_normalised
     
-    if RENDER_MODE == "cube" or RANDOMISE != True:
+    if render_type == "cube" or noise != True:
         random_mask=threshold_mask
 
     combined_mask = threshold_mask & random_mask
@@ -195,18 +193,23 @@ def gen_points_3d_monte_carlo(N,range_input):
     return monte_carlo
     
     
-def plot_probability_density_3d(n, l, m, range_input, num_range, threshold, cmap):
+def plot_probability_density_3d(n, l, m, range_input, num_range, threshold, cmap, sim_type, render_type, noise=False):
     
     range_extent = range_input * hydrogenic_atomic_radius
     
     N = 1000000
-    
-    #data=gen_points_3d_cloud(threshold, range_input ,num_range)
-    data=gen_points_3d_monte_carlo(N, range_input)
+
+    if sim_type == "cloud":    
+        data=gen_points_3d_cloud(threshold, range_input ,num_range, render_type, noise)
+    elif sim_type == "monte_carlo":
+        data=gen_points_3d_monte_carlo(N, range_input)
+    else:
+        print("Please select sim type from list of supported types")
+        return
     
     plotter = pv.Plotter(window_size=(900, 700))
     
-    if RENDER_MODE == "cube":
+    if render_type == "cube":
         cube = pv.Cube()
         glyphs = data.glyph(geom=cube, scale=False, orient=False, factor=range_extent/(num_range/2))
         plotter.add_mesh(glyphs, scalars="probability_density", cmap=cmap, opacity=0.85)
@@ -245,4 +248,4 @@ def plot_probability_density_3d(n, l, m, range_input, num_range, threshold, cmap
     
     plotter.show()
     
-plot_probability_density_3d(n, l, m, 40, 200, 0.1, "rainbow")
+plot_probability_density_3d(n, l, m, 50, 200, 0.1, "rainbow", "monte_carlo", "cube")
