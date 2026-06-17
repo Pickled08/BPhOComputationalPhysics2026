@@ -3,15 +3,9 @@ import matplotlib.pyplot as plt
 import scipy
 from numba import njit
 import pyvista as pv
-<<<<<<< HEAD
 
-#GLOBALS
-RENDER_MODE = "scatter"
-RANDOMISE = 0
-=======
 import tkinter as tk
 from tkinter import ttk
->>>>>>> c1334d076029c508e7662819d0ef31aec387815f
 
 #Universal Constants
 PERMITTIVITY_FREE_SPACE = scipy.constants.epsilon_0
@@ -205,11 +199,6 @@ def plot_probability_density_3d(n, l, m, range_input, num_range, threshold, cmap
     range_extent = range_input * hydrogenic_atomic_radius
     
     N = 1000000
-<<<<<<< HEAD
-    
-    data=gen_points_3d_cloud(threshold, range_input ,num_range)
-    #data=gen_points_3d_monte_carlo(N, range_input)
-=======
 
     if sim_type == "cloud":    
         data=gen_points_3d_cloud(threshold, range_input ,num_range, render_type, noise)
@@ -218,7 +207,6 @@ def plot_probability_density_3d(n, l, m, range_input, num_range, threshold, cmap
     else:
         print("Please select sim type from list of supported types")
         return
->>>>>>> c1334d076029c508e7662819d0ef31aec387815f
     
     plotter = pv.Plotter(window_size=(900, 700))
     
@@ -261,8 +249,5 @@ def plot_probability_density_3d(n, l, m, range_input, num_range, threshold, cmap
     
     plotter.show()
     
-<<<<<<< HEAD
-plot_probability_density_3d(n, l, m, 40, 200, 0.1, "rainbow")
-=======
+
 plot_probability_density_3d(n, l, m, 50, 200, 0.1, "rainbow", "monte_carlo", "cube")
->>>>>>> c1334d076029c508e7662819d0ef31aec387815f
