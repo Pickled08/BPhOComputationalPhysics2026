@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import scipy
 from numba import njit
 import pyvista as pv
+
 import tkinter as tk
 from tkinter import ttk
 import threading
@@ -280,6 +281,7 @@ def plot_probability_density_3d(n, l, m, range_input, num_range, threshold, cmap
 
     plotter.show()
     
+<<<<<<< HEAD
 #plot_probability_density_3d(n, l, m, 50, 200, 0.1, "rainbow", "monte_carlo", "voxel") #f0 orbital
 
 
@@ -315,3 +317,7 @@ render_btn = ttk.Button(
 render_btn.grid(row=6, column=0, columnspan=2, sticky="ew", pady=5)
 
 root.mainloop()
+=======
+
+plot_probability_density_3d(n, l, m, 50, 200, 0.1, "rainbow", "monte_carlo", "cube")
+>>>>>>> 83a929dc04db13ee5fe3858016e9fd6e00e5c0ea
