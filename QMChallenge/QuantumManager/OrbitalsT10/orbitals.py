@@ -5,6 +5,7 @@ from numba import njit
 import pyvista as pv
 import tkinter as tk
 from tkinter import ttk
+import threading
 
 #Universal Constants
 PERMITTIVITY_FREE_SPACE = scipy.constants.epsilon_0
@@ -17,21 +18,40 @@ EULER_NUM = np.e
 ATOMIC_MASS_UNIT = scipy.constants.u
 BOHR_RADIUS = scipy.constants.physical_constants['Bohr radius'][0]
 
-# input parameters
-Z = 1  # Atomic number
-A = 1  # Mass number
-n = 5  # Principal quantum number
-l = 4  # Azimuthal quantum number
-m = 0  # Magnetic quantum number
+#Setup input GUI 
+
+root = tk.Tk()
+root.title("Orbital")
+root.geometry("500x300")
+
+Z_inp = tk.DoubleVar()
+A_inp = tk.DoubleVar()
+n_inp = tk.DoubleVar()
+l_inp = tk.DoubleVar()
+m_inp = tk.DoubleVar()
+
+# Set default float values
+Z_inp.set(1.0)  # Atomic number
+A_inp.set(1.0)  # Mass number
+n_inp.set(5.0)  # Principal quantum number
+l_inp.set(4.0)  # Azimuthal quantum number
+m_inp.set(0.0)  # Magnetic quantum number
+
+#Calculate orbital Shape
+
+def calculate_radius():
+
+    A = float(A_inp.get())
+    Z = float(Z_inp.get())
 
 
-#Start of Computation
+    M = A * ATOMIC_MASS_UNIT  # in kg
 
-M = A * ATOMIC_MASS_UNIT  # in kg
+    reduced_mass = (ELECTRON_MASS * M) / (ELECTRON_MASS + M)
 
-reduced_mass = (ELECTRON_MASS * M) / (ELECTRON_MASS + M)
+    hydrogenic_atomic_radius = BOHR_RADIUS * (ELECTRON_MASS / reduced_mass) / Z
 
-hydrogenic_atomic_radius = BOHR_RADIUS * (ELECTRON_MASS / reduced_mass) / Z
+    return hydrogenic_atomic_radius
 
 def laguer_polynomial(x, n, l):
     
@@ -40,6 +60,8 @@ def laguer_polynomial(x, n, l):
     return laguer_poly
 
 def radial_wavefunction(r, n, l):
+
+    hydrogenic_atomic_radius = calculate_radius()
     
     x = (2 * r) / (hydrogenic_atomic_radius * n)
     
@@ -106,6 +128,9 @@ def plot_linear_probability_density(r, n, l):
 
 #Plot probability density vs x,y as color map
 def plot_probability_density_2d(n, l, m):
+
+    hydrogenic_atomic_radius = calculate_radius()
+
     # Build a Cartesian grid directly
     extent = 25 * hydrogenic_atomic_radius
     num_points = 2000
@@ -137,6 +162,9 @@ def plot_probability_density_2d(n, l, m):
     plt.show()
 
 def gen_points_3d_cloud(threshold, range_input, num_range, render_type, noise=False):
+
+    hydrogenic_atomic_radius = calculate_radius()
+
     # Generate Points
     range_extent = range_input * hydrogenic_atomic_radius
 
@@ -160,7 +188,7 @@ def gen_points_3d_cloud(threshold, range_input, num_range, render_type, noise=Fa
     threshold_mask = pd_normalised > threshold
     random_mask = np.random.random(len(pd_normalised)) < pd_normalised
     
-    if render_type == "cube" or noise != True:
+    if render_type == "voxel" or noise != True:
         random_mask=threshold_mask
 
     combined_mask = threshold_mask & random_mask
@@ -171,6 +199,8 @@ def gen_points_3d_cloud(threshold, range_input, num_range, render_type, noise=Fa
     return cloud
 
 def gen_points_3d_monte_carlo(N,range_input):
+
+    hydrogenic_atomic_radius = calculate_radius()
     
     range_extent = range_input * hydrogenic_atomic_radius
     
@@ -194,6 +224,8 @@ def gen_points_3d_monte_carlo(N,range_input):
     
     
 def plot_probability_density_3d(n, l, m, range_input, num_range, threshold, cmap, sim_type, render_type, noise=False):
+
+    hydrogenic_atomic_radius = calculate_radius()
     
     range_extent = range_input * hydrogenic_atomic_radius
     
@@ -209,7 +241,7 @@ def plot_probability_density_3d(n, l, m, range_input, num_range, threshold, cmap
     
     plotter = pv.Plotter(window_size=(900, 700))
     
-    if render_type == "cube":
+    if render_type == "voxel":
         cube = pv.Cube()
         glyphs = data.glyph(geom=cube, scale=False, orient=False, factor=range_extent/(num_range/2))
         plotter.add_mesh(glyphs, scalars="probability_density", cmap=cmap, opacity=0.85)
@@ -245,7 +277,41 @@ def plot_probability_density_3d(n, l, m, range_input, num_range, threshold, cmap
     
     plotter.background_color = 'black'
     plotter.camera_position = "iso" # isometric starting view
-    
+
     plotter.show()
     
-plot_probability_density_3d(n, l, m, 50, 200, 0.1, "rainbow", "monte_carlo", "cube")
+#plot_probability_density_3d(n, l, m, 50, 200, 0.1, "rainbow", "monte_carlo", "voxel") #f0 orbital
+
+
+#GUI
+frame = ttk.Frame(root, padding=10)
+frame.grid(row=0, column=0, sticky="nsew")
+
+ttk.Label(frame, text="Inputs").grid(row=0, column=0, sticky="w", padx=5, pady=2)
+
+# Input field layout using grid
+ttk.Label(frame, text="Atomic number").grid(row=1, column=0, sticky="w", padx=5, pady=2)
+ttk.Entry(frame, textvariable=Z).grid(row=1, column=1, padx=5, pady=2)
+
+ttk.Label(frame, text="Atomic Mass").grid(row=2, column=0, sticky="w", padx=5, pady=2)
+ttk.Entry(frame, textvariable=A).grid(row=2, column=1, padx=5, pady=2)
+
+ttk.Label(frame, text="Principal quantum number").grid(row=3, column=0, sticky="w", padx=5, pady=2)
+ttk.Entry(frame, textvariable=n).grid(row=3, column=1, padx=5, pady=2)
+
+ttk.Label(frame, text="Azimuthal quantum number").grid(row=4, column=0, sticky="w", padx=5, pady=2)
+ttk.Entry(frame, textvariable=l).grid(row=4, column=1, padx=5, pady=2)
+
+# Button layout converted from .pack() to .grid() to prevent layout freeze
+render_btn = ttk.Button(
+    frame,
+    text="Render",
+    command=lambda: threading.Thread(
+        target=plot_probability_density_3d, 
+        args=(float(n.get()), float(l.get()), float(m.get()), 50, 200, 0.1, "rainbow", "monte_carlo", "voxel"),
+        daemon=True
+    ).start()
+)
+render_btn.grid(row=6, column=0, columnspan=2, sticky="ew", pady=5)
+
+root.mainloop()
