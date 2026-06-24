@@ -23,27 +23,35 @@ BOHR_RADIUS = scipy.constants.physical_constants['Bohr radius'][0]
 
 root = tk.Tk()
 root.title("Orbital")
-root.geometry("500x300")
+root.geometry("500x500")
 
-Z_inp = tk.DoubleVar()
-A_inp = tk.DoubleVar()
-n_inp = tk.DoubleVar()
-l_inp = tk.DoubleVar()
-m_inp = tk.DoubleVar()
+Z_inp = tk.IntVar()
+A_inp = tk.IntVar()
+n_inp = tk.IntVar()
+l_inp = tk.IntVar()
+m_inp = tk.IntVar()
 
-# Set default float values
-Z_inp.set(1.0)  # Atomic number
-A_inp.set(1.0)  # Mass number
-n_inp.set(5.0)  # Principal quantum number
-l_inp.set(4.0)  # Azimuthal quantum number
-m_inp.set(0.0)  # Magnetic quantum number
+grid_zoom = tk.IntVar()
+resolution = tk.IntVar()
+cutoff_threshold = tk.DoubleVar()
+
+# Set default values
+Z_inp.set(1)  # Atomic number
+A_inp.set(1)  # Mass number
+n_inp.set(5)  # Principal quantum number
+l_inp.set(4)  # Azimuthal quantum number
+m_inp.set(0)  # Magnetic quantum number
+
+grid_zoom.set(40)
+resolution.set(200)
+cutoff_threshold.set(0.1)
 
 #Calculate orbital Shape
 
 def calculate_radius():
 
-    A = float(A_inp.get())
-    Z = float(Z_inp.get())
+    A = int(A_inp.get())
+    Z = int(Z_inp.get())
 
 
     M = A * ATOMIC_MASS_UNIT  # in kg
@@ -104,13 +112,19 @@ def angular_wavefunction(theta, phi, l, m):
     return np.real(Y)
     
 def wavefunction(r, theta, phi):
-    global n, l, m
+    n=int(n_inp.get())
+    m=int(m_inp.get())
+    l=int(l_inp.get())
     
     psi = radial_wavefunction(r, n, l)*angular_wavefunction(theta, phi, l, m)
     
     return psi
 
 def plot_linear_probability_density(r, n, l):
+    
+    A = int(A_inp.get())
+    Z = int(Z_inp.get())
+    
     radial_values = radial_wavefunction(r, n, l)
     
     density_at_a_point = radial_values**2
@@ -281,7 +295,6 @@ def plot_probability_density_3d(n, l, m, range_input, num_range, threshold, cmap
 
     plotter.show()
     
-<<<<<<< HEAD
 #plot_probability_density_3d(n, l, m, 50, 200, 0.1, "rainbow", "monte_carlo", "voxel") #f0 orbital
 
 
@@ -293,16 +306,39 @@ ttk.Label(frame, text="Inputs").grid(row=0, column=0, sticky="w", padx=5, pady=2
 
 # Input field layout using grid
 ttk.Label(frame, text="Atomic number").grid(row=1, column=0, sticky="w", padx=5, pady=2)
-ttk.Entry(frame, textvariable=Z).grid(row=1, column=1, padx=5, pady=2)
+ttk.Entry(frame, textvariable=Z_inp).grid(row=1, column=1, padx=5, pady=2)
 
 ttk.Label(frame, text="Atomic Mass").grid(row=2, column=0, sticky="w", padx=5, pady=2)
-ttk.Entry(frame, textvariable=A).grid(row=2, column=1, padx=5, pady=2)
+ttk.Entry(frame, textvariable=A_inp).grid(row=2, column=1, padx=5, pady=2)
 
 ttk.Label(frame, text="Principal quantum number").grid(row=3, column=0, sticky="w", padx=5, pady=2)
-ttk.Entry(frame, textvariable=n).grid(row=3, column=1, padx=5, pady=2)
+ttk.Entry(frame, textvariable=n_inp).grid(row=3, column=1, padx=5, pady=2)
 
 ttk.Label(frame, text="Azimuthal quantum number").grid(row=4, column=0, sticky="w", padx=5, pady=2)
-ttk.Entry(frame, textvariable=l).grid(row=4, column=1, padx=5, pady=2)
+ttk.Entry(frame, textvariable=l_inp).grid(row=4, column=1, padx=5, pady=2)
+
+ttk.Label(frame, text="------------------------------------").grid(row=5, column=0, sticky="w", padx=5, pady=2)
+
+ttk.Label(frame, text="Render Settings").grid(row=6, column=0, sticky="w", padx=5, pady=2)
+
+ttk.Label(frame, text="Grid Zoom").grid(row=7, column=0, sticky="w", padx=5, pady=2)
+ttk.Entry(frame, textvariable=grid_zoom).grid(row=7, column=1, padx=5, pady=2)
+
+
+ttk.Label(frame, text="Resolution").grid(row=8, column=0, sticky="w", padx=5, pady=2)
+ttk.Entry(frame, textvariable=resolution).grid(row=8, column=1, padx=5, pady=2)
+
+ttk.Label(frame, text="Cutoff Threshold").grid(row=9, column=0, sticky="w", padx=5, pady=2)
+ttk.Entry(frame, textvariable=cutoff_threshold).grid(row=9, column=1, padx=5, pady=2)
+
+ttk.Label(frame, text="Colour Map").grid(row=10, column=0, sticky="w", padx=5, pady=2)
+
+ttk.Label(frame, text="Simulation Type").grid(row=11, column=0, sticky="w", padx=5, pady=2)
+
+ttk.Label(frame, text="Render Type").grid(row=12, column=0, sticky="w", padx=5, pady=2)
+
+ttk.Label(frame, text="------------------------------------").grid(row=13, column=0, sticky="w", padx=5, pady=2)
+
 
 # Button layout converted from .pack() to .grid() to prevent layout freeze
 render_btn = ttk.Button(
@@ -310,14 +346,11 @@ render_btn = ttk.Button(
     text="Render",
     command=lambda: threading.Thread(
         target=plot_probability_density_3d, 
-        args=(float(n.get()), float(l.get()), float(m.get()), 50, 200, 0.1, "rainbow", "monte_carlo", "voxel"),
+        args=(int(n_inp.get()), int(l_inp.get()), int(m_inp.get()), int(grid_zoom.get()), int(resolution.get()), float(cutoff_threshold.get()), "rainbow", "cloud", "voxel"),
         daemon=True
     ).start()
 )
-render_btn.grid(row=6, column=0, columnspan=2, sticky="ew", pady=5)
+render_btn.grid(row=14, column=0, columnspan=2, sticky="ew", pady=5)
 
 root.mainloop()
-=======
 
-plot_probability_density_3d(n, l, m, 50, 200, 0.1, "rainbow", "monte_carlo", "cube")
->>>>>>> 83a929dc04db13ee5fe3858016e9fd6e00e5c0ea
