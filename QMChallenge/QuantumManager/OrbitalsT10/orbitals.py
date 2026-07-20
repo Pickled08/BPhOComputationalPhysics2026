@@ -35,16 +35,50 @@ grid_zoom = tk.IntVar()
 resolution = tk.IntVar()
 cutoff_threshold = tk.DoubleVar()
 
+cmap_var = tk.StringVar(value="rainbow")
+sim_var = tk.StringVar(value="monte_carlo")
+render_var = tk.StringVar(value="voxel")
+
+preset_var = tk.StringVar(value="Custom")
+
 # Set default values
-Z_inp.set(1)  # Atomic number
-A_inp.set(1)  # Mass number
-n_inp.set(5)  # Principal quantum number
-l_inp.set(4)  # Azimuthal quantum number
-m_inp.set(0)  # Magnetic quantum number
+# Set default values
+Z_inp.set(1)   # Atomic number
+A_inp.set(1)   # Mass number
+n_inp.set(4)   # 4th shell
+l_inp.set(3)   # f orbital
+m_inp.set(0)   # m=0 component
 
 grid_zoom.set(40)
 resolution.set(200)
 cutoff_threshold.set(0.1)
+
+PRESETS = {
+    "1s": {"n": 1, "l": 0, "m": 0, "zoom": 8,  "cutoff": 0.05,  "cmap": "rainbow"},
+    "2s": {"n": 2, "l": 0, "m": 0, "zoom": 9, "cutoff": 0.005,  "cmap": "rainbow"},
+    "2p": {"n": 2, "l": 1, "m": 0, "zoom": 12, "cutoff": 0.05,  "cmap": "rainbow"},
+    "3s": {"n": 3, "l": 0, "m": 0, "zoom": 16, "cutoff": 0.005, "cmap": "rainbow"},
+    "3p": {"n": 3, "l": 1, "m": 0, "zoom": 20, "cutoff": 0.03, "cmap": "rainbow"},
+    "3d": {"n": 3, "l": 2, "m": 0, "zoom": 20, "cutoff": 0.1, "cmap": "rainbow"},
+    "4s": {"n": 4, "l": 0, "m": 0, "zoom": 24, "cutoff": 0.001, "cmap": "rainbow"},
+    "4p": {"n": 4, "l": 1, "m": 0, "zoom": 40, "cutoff": 0.01, "cmap": "rainbow"},
+    "4d": {"n": 4, "l": 2, "m": 0, "zoom": 40, "cutoff": 0.03, "cmap": "rainbow"},
+    "4f": {"n": 4, "l": 3, "m": 0, "zoom": 40, "cutoff": 0.1, "cmap": "rainbow"},
+}
+
+def apply_preset(event=None):
+    if preset_var.get() == "Custom":
+        return
+
+    p = PRESETS[preset_var.get()]
+
+    n_inp.set(p["n"])
+    l_inp.set(p["l"])
+    m_inp.set(p["m"])
+
+    grid_zoom.set(p["zoom"])
+    cutoff_threshold.set(p["cutoff"])
+    cmap_var.set(p["cmap"])
 
 #Calculate orbital Shape
 
@@ -198,7 +232,12 @@ def gen_points_3d_cloud(threshold, range_input, num_range, render_type, noise=Fa
     psi = wavefunction(R_pts, THETA_pts, PHI_pts)
     
     pd_values = np.abs(psi)**2
-    pd_normalised = pd_values / pd_values.max()  # scale to [0, 1]
+    max_pd = pd_values.max()
+
+    if max_pd > 0:
+        pd_normalised = pd_values / max_pd
+    else:
+        pd_normalised = pd_values
     
     threshold_mask = pd_normalised > threshold
     random_mask = np.random.random(len(pd_normalised)) < pd_normalised
@@ -317,40 +356,116 @@ ttk.Entry(frame, textvariable=n_inp).grid(row=3, column=1, padx=5, pady=2)
 ttk.Label(frame, text="Azimuthal quantum number").grid(row=4, column=0, sticky="w", padx=5, pady=2)
 ttk.Entry(frame, textvariable=l_inp).grid(row=4, column=1, padx=5, pady=2)
 
-ttk.Label(frame, text="------------------------------------").grid(row=5, column=0, sticky="w", padx=5, pady=2)
+ttk.Label(frame, text="Magnetic quantum number").grid(row=5, column=0, sticky="w", padx=5, pady=2)
+ttk.Entry(frame, textvariable=m_inp).grid(row=5, column=1, padx=5, pady=2)
 
-ttk.Label(frame, text="Render Settings").grid(row=6, column=0, sticky="w", padx=5, pady=2)
+ttk.Label(frame, text="------------------------------------").grid(row=6, column=0, sticky="w", padx=5, pady=2)
 
-ttk.Label(frame, text="Grid Zoom").grid(row=7, column=0, sticky="w", padx=5, pady=2)
-ttk.Entry(frame, textvariable=grid_zoom).grid(row=7, column=1, padx=5, pady=2)
+ttk.Label(frame, text="Render Settings").grid(row=7, column=0, sticky="w", padx=5, pady=2)
 
-
-ttk.Label(frame, text="Resolution").grid(row=8, column=0, sticky="w", padx=5, pady=2)
-ttk.Entry(frame, textvariable=resolution).grid(row=8, column=1, padx=5, pady=2)
-
-ttk.Label(frame, text="Cutoff Threshold").grid(row=9, column=0, sticky="w", padx=5, pady=2)
-ttk.Entry(frame, textvariable=cutoff_threshold).grid(row=9, column=1, padx=5, pady=2)
-
-ttk.Label(frame, text="Colour Map").grid(row=10, column=0, sticky="w", padx=5, pady=2)
-
-ttk.Label(frame, text="Simulation Type").grid(row=11, column=0, sticky="w", padx=5, pady=2)
-
-ttk.Label(frame, text="Render Type").grid(row=12, column=0, sticky="w", padx=5, pady=2)
-
-ttk.Label(frame, text="------------------------------------").grid(row=13, column=0, sticky="w", padx=5, pady=2)
+ttk.Label(frame, text="Grid Zoom").grid(row=8, column=0, sticky="w", padx=5, pady=2)
+ttk.Entry(frame, textvariable=grid_zoom).grid(row=8, column=1, padx=5, pady=2)
 
 
-# Button layout converted from .pack() to .grid() to prevent layout freeze
+ttk.Label(frame, text="Resolution").grid(row=9, column=0, sticky="w", padx=5, pady=2)
+ttk.Entry(frame, textvariable=resolution).grid(row=9, column=1, padx=5, pady=2)
+
+ttk.Label(frame, text="Cutoff Threshold").grid(row=10, column=0, sticky="w", padx=5, pady=2)
+ttk.Entry(frame, textvariable=cutoff_threshold).grid(row=10, column=1, padx=5, pady=2)
+
+ttk.Label(frame, text="Colour Map").grid(row=11, column=0, sticky="w", padx=5, pady=2)
+
+all_cmaps = sorted(plt.colormaps())
+
+favourites = ["inferno", "hot", "rainbow", "viridis", "plasma", "magma", "cividis"]
+colourmaps = favourites + [c for c in all_cmaps if c not in favourites]
+
+cmap_dropdown = ttk.Combobox(
+    frame,
+    textvariable=cmap_var,
+    values=colourmaps,
+    state="readonly",
+    width=20
+)
+cmap_dropdown.grid(row=11, column=1, padx=5, pady=2, sticky="ew")
+
+ttk.Label(frame, text="Simulation Type").grid(row=12, column=0, sticky="w", padx=5, pady=2)
+
+sim_dropdown = ttk.Combobox(
+    frame,
+    textvariable=sim_var,
+    values=["cloud", "monte_carlo"],
+    state="readonly",
+    width=20
+)
+sim_dropdown.grid(row=12, column=1, padx=5, pady=2, sticky="ew")
+
+ttk.Label(frame, text="Render Type").grid(row=13, column=0, sticky="w", padx=5, pady=2)
+
+render_dropdown = ttk.Combobox(
+    frame,
+    textvariable=render_var,
+    values=["voxel", "scatter"],
+    state="readonly",
+    width=20
+)
+render_dropdown.grid(row=13, column=1, padx=5, pady=2, sticky="ew")
+
+ttk.Label(frame, text="------------------------------------").grid(row=14, column=0, sticky="w", padx=5, pady=2)
+
+ttk.Label(frame, text="Preset").grid(
+    row=15, column=0, sticky="w", padx=5, pady=2
+)
+
+preset_dropdown = ttk.Combobox(
+    frame,
+    textvariable=preset_var,
+    values=["Custom"] + list(PRESETS.keys()),
+    state="readonly",
+    width=20
+)
+
+preset_dropdown.grid(
+    row=15,
+    column=1,
+    padx=5,
+    pady=2,
+    sticky="ew"
+)
+
+preset_dropdown.bind("<<ComboboxSelected>>", apply_preset)
+
+def render_with_error_popup():
+    try:
+        plot_probability_density_3d(
+            int(n_inp.get()),
+            int(l_inp.get()),
+            int(m_inp.get()),
+            int(grid_zoom.get()),
+            int(resolution.get()),
+            float(cutoff_threshold.get()),
+            cmap_var.get(),
+            sim_var.get(),
+            render_var.get()
+        )
+    except Exception as e:
+        from tkinter import messagebox
+        messagebox.showerror(
+            "Render Error",
+            f"An error occurred while rendering:\n\n{type(e).__name__}: {e}"
+        )
+
+
 render_btn = ttk.Button(
     frame,
     text="Render",
     command=lambda: threading.Thread(
-        target=plot_probability_density_3d, 
-        args=(int(n_inp.get()), int(l_inp.get()), int(m_inp.get()), int(grid_zoom.get()), int(resolution.get()), float(cutoff_threshold.get()), "rainbow", "cloud", "voxel"),
+        target=render_with_error_popup,
         daemon=True
     ).start()
 )
-render_btn.grid(row=14, column=0, columnspan=2, sticky="ew", pady=5)
+
+render_btn.grid(row=16, column=0, columnspan=2, sticky="ew", pady=5)
 
 root.mainloop()
 
