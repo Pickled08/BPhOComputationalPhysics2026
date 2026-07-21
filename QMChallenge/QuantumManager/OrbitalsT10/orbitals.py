@@ -4,6 +4,8 @@ import scipy
 from numba import njit
 import pyvista as pv
 
+import matplotlib.colors as colors
+
 import tkinter as tk
 from tkinter import ttk
 import threading
@@ -23,7 +25,7 @@ BOHR_RADIUS = scipy.constants.physical_constants['Bohr radius'][0]
 
 root = tk.Tk()
 root.title("Orbital")
-root.geometry("500x500")
+root.geometry("600x600")
 
 Z_inp = tk.IntVar()
 A_inp = tk.IntVar()
@@ -35,13 +37,16 @@ grid_zoom = tk.IntVar()
 resolution = tk.IntVar()
 cutoff_threshold = tk.DoubleVar()
 
+N_monte_carlo = tk.IntVar(value=10000000)
+
 cmap_var = tk.StringVar(value="rainbow")
 sim_var = tk.StringVar(value="monte_carlo")
 render_var = tk.StringVar(value="voxel")
 
 preset_var = tk.StringVar(value="Custom")
 
-# Set default values
+colormap_scale_var = tk.StringVar(value="linear")  # Options: "linear" or "log"
+
 # Set default values
 Z_inp.set(1)   # Atomic number
 A_inp.set(1)   # Mass number
@@ -200,8 +205,14 @@ def plot_probability_density_2d(n, l, m):
     psi = wavefunction(R, THETA, PHI)
     probability_density = np.abs(psi)**2
 
+    max_val = np.max(probability_density)
+    min_val = max_val * 1e-5
+
     fig, ax = plt.subplots(figsize=(8, 8))
-    mesh = ax.pcolormesh(X, Z, probability_density, shading='auto', cmap='inferno')
+    if colormap_scale_var.get() == "linear":
+        mesh = ax.pcolormesh(X, Z, probability_density, shading='auto', cmap='inferno', vmin=min_val, vmax=max_val)
+    else:
+        mesh = ax.pcolormesh(X, Z, probability_density, shading='auto', cmap='inferno', norm=colors.LogNorm(vmin=min_val, vmax=max_val))
     plt.colorbar(mesh, ax=ax, label='Probability Density')
     ax.set_title(f'Probability Density (XZ cross-section) n={n}, l={l}, m={m}')
     ax.set_xlabel('x (m)')
@@ -277,18 +288,16 @@ def gen_points_3d_monte_carlo(N,range_input):
     return monte_carlo
     
     
-def plot_probability_density_3d(n, l, m, range_input, num_range, threshold, cmap, sim_type, render_type, noise=False):
+def plot_probability_density_3d(n, l, m, range_input, num_range, threshold, cmap, sim_type, render_type, N_monte_carlo, noise=False):
 
     hydrogenic_atomic_radius = calculate_radius()
     
     range_extent = range_input * hydrogenic_atomic_radius
-    
-    N = 1000000
 
     if sim_type == "cloud":    
         data=gen_points_3d_cloud(threshold, range_input ,num_range, render_type, noise)
     elif sim_type == "monte_carlo":
-        data=gen_points_3d_monte_carlo(N, range_input)
+        data=gen_points_3d_monte_carlo(N_monte_carlo, range_input)
     else:
         print("Please select sim type from list of supported types")
         return
@@ -361,7 +370,7 @@ ttk.Entry(frame, textvariable=m_inp).grid(row=5, column=1, padx=5, pady=2)
 
 ttk.Label(frame, text="------------------------------------").grid(row=6, column=0, sticky="w", padx=5, pady=2)
 
-ttk.Label(frame, text="Render Settings").grid(row=7, column=0, sticky="w", padx=5, pady=2)
+ttk.Label(frame, text="3D Render Settings").grid(row=7, column=0, sticky="w", padx=5, pady=2)
 
 ttk.Label(frame, text="Grid Zoom").grid(row=8, column=0, sticky="w", padx=5, pady=2)
 ttk.Entry(frame, textvariable=grid_zoom).grid(row=8, column=1, padx=5, pady=2)
@@ -400,7 +409,12 @@ sim_dropdown = ttk.Combobox(
 )
 sim_dropdown.grid(row=12, column=1, padx=5, pady=2, sticky="ew")
 
-ttk.Label(frame, text="Render Type").grid(row=13, column=0, sticky="w", padx=5, pady=2)
+N_monte_carlo_label = ttk.Label(frame, text="MC Sample Points")
+N_monte_carlo_label.grid(row=13, column=0, sticky="w", padx=5, pady=2)
+N_monte_carlo_entry = ttk.Entry(frame, textvariable=N_monte_carlo)
+N_monte_carlo_entry.grid(row=13, column=1, padx=5, pady=2)
+
+ttk.Label(frame, text="Render Type").grid(row=14, column=0, sticky="w", padx=5, pady=2)
 
 render_dropdown = ttk.Combobox(
     frame,
@@ -409,12 +423,12 @@ render_dropdown = ttk.Combobox(
     state="readonly",
     width=20
 )
-render_dropdown.grid(row=13, column=1, padx=5, pady=2, sticky="ew")
+render_dropdown.grid(row=14, column=1, padx=5, pady=2, sticky="ew")
 
-ttk.Label(frame, text="------------------------------------").grid(row=14, column=0, sticky="w", padx=5, pady=2)
+ttk.Label(frame, text="------------------------------------").grid(row=15, column=0, sticky="w", padx=5, pady=2)
 
 ttk.Label(frame, text="Preset").grid(
-    row=15, column=0, sticky="w", padx=5, pady=2
+    row=16, column=0, sticky="w", padx=5, pady=2
 )
 
 preset_dropdown = ttk.Combobox(
@@ -426,7 +440,7 @@ preset_dropdown = ttk.Combobox(
 )
 
 preset_dropdown.grid(
-    row=15,
+    row=16,
     column=1,
     padx=5,
     pady=2,
@@ -435,7 +449,22 @@ preset_dropdown.grid(
 
 preset_dropdown.bind("<<ComboboxSelected>>", apply_preset)
 
-def render_with_error_popup():
+ttk.Label(frame, text="------------------------------------").grid(row=17, column=0, sticky="w", padx=5, pady=2)
+
+#Log colormap scale option
+ttk.Label(frame, text="2D Colormap Scale").grid(row=18, column=0, sticky="w", padx=5, pady=2)
+colormap_scale_dropdown = ttk.Combobox(
+    frame,
+    textvariable=colormap_scale_var,
+    values=["linear", "log"],
+    state="readonly",
+    width=20
+)
+colormap_scale_dropdown.grid(row=18, column=1, padx=5, pady=2, sticky="ew")
+
+ttk.Label(frame, text="------------------------------------").grid(row=19, column=0, sticky="w", padx=5, pady=2)
+
+def render_3d_with_error_popup():
     try:
         plot_probability_density_3d(
             int(n_inp.get()),
@@ -446,7 +475,8 @@ def render_with_error_popup():
             float(cutoff_threshold.get()),
             cmap_var.get(),
             sim_var.get(),
-            render_var.get()
+            render_var.get(),
+            int(N_monte_carlo.get())
         )
     except Exception as e:
         from tkinter import messagebox
@@ -455,17 +485,41 @@ def render_with_error_popup():
             f"An error occurred while rendering:\n\n{type(e).__name__}: {e}"
         )
 
+def render_2d_with_error_popup():
+    try:
+        plot_probability_density_2d(
+            int(n_inp.get()),
+            int(l_inp.get()),
+            int(m_inp.get())
+        )
+    except Exception as e:
+        from tkinter import messagebox
+        messagebox.showerror(
+            "Render Error",
+            f"An error occurred while rendering:\n\n{type(e).__name__}: {e}"
+        )
 
 render_btn = ttk.Button(
     frame,
-    text="Render",
+    text="Render 3D Orbital",
     command=lambda: threading.Thread(
-        target=render_with_error_popup,
+        target=render_3d_with_error_popup,
         daemon=True
     ).start()
 )
 
-render_btn.grid(row=16, column=0, columnspan=2, sticky="ew", pady=5)
+render_btn.grid(row=20, column=0, columnspan=2, sticky="ew", pady=5)
+
+render_2d_btn = ttk.Button(
+    frame,
+    text="Render 2D Orbital",
+    command=lambda: threading.Thread(
+        target=render_2d_with_error_popup,
+        daemon=True
+    ).start()
+)
+
+render_2d_btn.grid(row=21, column=0, columnspan=2, sticky="ew", pady=5)
 
 root.mainloop()
 
