@@ -25,15 +25,15 @@ def plot_SP_F(workfunction):
     visible_indigo = 7e14
     visible_violet = 7.5e14
 
-    mpl.rcParams['toolbar'] = 'None'
+    mpl.rcParams["toolbar"] = "None"
 
     plt.figure(figsize=(10, 6))
-    plt.plot(frequencies, y_above, label='Stopping Potential vs Frequency', color='blue')
-    plt.plot(frequencies, y_below, color='blue', linestyle='--')
-    plt.axhline(0, color='red', linestyle='--', label='Zero Stopping Potential')
-    plt.xlabel('Frequency (Hz)')
-    plt.ylabel('Stopping Potential (V)')
-    plt.title('Photoelectric Effect: Stopping Potential vs Frequency \nWork Function = {:.2f} eV'.format(workfunction))
+    plt.plot(frequencies, y_above, label="Stopping Potential vs Frequency", color="blue")
+    plt.plot(frequencies, y_below, color="blue", linestyle="--")
+    plt.axhline(0, color="red", linestyle="--", label="Zero Stopping Potential")
+    plt.xlabel("Frequency (Hz)")
+    plt.ylabel("Stopping Potential (V)")
+    plt.title("Photoelectric Effect: Stopping Potential vs Frequency \nWork Function = {:.2f} eV".format(workfunction))
 
     plt.vlines(visible_red, -100, 100, colors="red", linewidth=0.5)
     plt.vlines(visible_orange, -100, 100, colors="orange", linewidth=0.5)

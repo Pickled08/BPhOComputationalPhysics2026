@@ -19,7 +19,7 @@ ELECTRON_MASS = scipy.constants.m_e
 PI = np.pi
 EULER_NUM = np.e
 ATOMIC_MASS_UNIT = scipy.constants.u
-BOHR_RADIUS = scipy.constants.physical_constants['Bohr radius'][0]
+BOHR_RADIUS = scipy.constants.physical_constants["Bohr radius"][0]
 
 #Setup input GUI 
 
@@ -172,12 +172,12 @@ def plot_linear_probability_density(r, n, l):
     r_angstroms = r / 1e-10
     
     plt.figure(figsize=(7, 5.5))
-    plt.plot(r_angstroms, density_at_a_point, color='red', linewidth=2)
+    plt.plot(r_angstroms, density_at_a_point, color="red", linewidth=2)
     plt.title(f"Hydrogenic atom: Z={Z}, A={A}, n={n}, L={l}")
     plt.xlabel("radius /Angstroms")
     plt.ylabel("Probability density")
     plt.xlim(0, 4) 
-    plt.grid(True, color='lightgray')
+    plt.grid(True, color="lightgray")
     plt.show()
 
 #Plot probability density vs x,y as color map
@@ -210,14 +210,14 @@ def plot_probability_density_2d(n, l, m):
 
     fig, ax = plt.subplots(figsize=(8, 8))
     if colormap_scale_var.get() == "linear":
-        mesh = ax.pcolormesh(X, Z, probability_density, shading='auto', cmap='inferno', vmin=min_val, vmax=max_val)
+        mesh = ax.pcolormesh(X, Z, probability_density, shading="auto", cmap="inferno", vmin=min_val, vmax=max_val)
     else:
-        mesh = ax.pcolormesh(X, Z, probability_density, shading='auto', cmap='inferno', norm=colors.LogNorm(vmin=min_val, vmax=max_val))
-    plt.colorbar(mesh, ax=ax, label='Probability Density')
-    ax.set_title(f'Probability Density (XZ cross-section) n={n}, l={l}, m={m}')
-    ax.set_xlabel('x (m)')
-    ax.set_ylabel('z (m)')
-    ax.set_aspect('equal')
+        mesh = ax.pcolormesh(X, Z, probability_density, shading="auto", cmap="inferno", norm=colors.LogNorm(vmin=min_val, vmax=max_val))
+    plt.colorbar(mesh, ax=ax, label="Probability Density")
+    ax.set_title(f"Probability Density (XZ cross-section) n={n}, l={l}, m={m}")
+    ax.set_xlabel("x (m)")
+    ax.set_ylabel("z (m)")
+    ax.set_aspect("equal")
     plt.tight_layout()
     plt.show()
 
@@ -232,7 +232,7 @@ def gen_points_3d_cloud(threshold, range_input, num_range, render_type, noise=Fa
     y = np.linspace(-range_extent, range_extent, num_range)
     z = np.linspace(-range_extent, range_extent, num_range)
 
-    X, Y, Z = np.meshgrid(x, y, z, indexing='ij')    
+    X, Y, Z = np.meshgrid(x, y, z, indexing="ij")    
     
     points = np.column_stack((X.ravel(), Y.ravel(), Z.ravel()))
     
@@ -260,7 +260,7 @@ def gen_points_3d_cloud(threshold, range_input, num_range, render_type, noise=Fa
 
     cloud = pv.PolyData(points[combined_mask])
     cloud["probability_density"] = pd_normalised[combined_mask]
-        
+    
     return cloud
 
 def gen_points_3d_monte_carlo(N,range_input):
@@ -326,9 +326,9 @@ def plot_probability_density_3d(n, l, m, range_input, num_range, threshold, cmap
     )
 
     plotter.show_bounds(
-        grid='back',
-        location='outer',
-        color='white',
+        grid="back",
+        location="outer",
+        color="white",
         xtitle="X (m)",
         ytitle="Y (m)",
         ztitle="Z (m)",
@@ -338,7 +338,7 @@ def plot_probability_density_3d(n, l, m, range_input, num_range, threshold, cmap
         
     plotter.add_axes(interactive=True)
     
-    plotter.background_color = 'black'
+    plotter.background_color = "black"
     plotter.camera_position = "iso" # isometric starting view
 
     plotter.show()
@@ -480,6 +480,7 @@ def render_3d_with_error_popup():
         )
     except Exception as e:
         from tkinter import messagebox
+        print(f"Error occurred while rendering 3D orbital: {type(e).__name__}: {e}")
         messagebox.showerror(
             "Render Error",
             f"An error occurred while rendering:\n\n{type(e).__name__}: {e}"
@@ -494,6 +495,7 @@ def render_2d_with_error_popup():
         )
     except Exception as e:
         from tkinter import messagebox
+        print(f"Error occurred while rendering 2D orbital: {type(e).__name__}: {e}")
         messagebox.showerror(
             "Render Error",
             f"An error occurred while rendering:\n\n{type(e).__name__}: {e}"

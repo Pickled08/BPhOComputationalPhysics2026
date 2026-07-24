@@ -5,7 +5,7 @@ import tkinter as tk
 from tkinter import ttk
 import time
 
-mpl.rcParams['toolbar'] = 'None'
+mpl.rcParams["toolbar"] = "None"
 
 global running
 running = True
@@ -13,8 +13,6 @@ running = True
 def on_closing():
     global running
     running = False
-    root.destroy()  # Closes the Tkinter window
-    plt.close('all') # Closes any open Matplotlib windows
     exit()
     
 def brownian_motion(n, m , r, v, M, R, xmax, ymax,kappa, dt, traceMode, title):
@@ -145,11 +143,11 @@ def brownian_motion(n, m , r, v, M, R, xmax, ymax,kappa, dt, traceMode, title):
         plt.scatter(particle_pos[:, 0], particle_pos[:, 1], s=10)
         
         # Create the circle object
-        circle = plt.Circle(large_particle_pos, R, color='red', fill=False)
+        circle = plt.Circle(large_particle_pos, R, color="red", fill=False)
         
         if traceMode == True and len(large_particle_history) > 1:
             history_array = np.array(large_particle_history)
-            plt.plot(history_array[:, 0], history_array[:, 1], color='red', linestyle='-', linewidth=0.8, alpha=0.3)
+            plt.plot(history_array[:, 0], history_array[:, 1], color="red", linestyle="-", linewidth=0.8, alpha=0.3)
 
         # Add it to the plot
         plt.gca().add_patch(circle)
@@ -252,14 +250,13 @@ ttk.Button(
         float(kappa_var.get()),
         float(dt_var.get()),
         bool(traceMode.get()),
-        f"Brownian Motion Simulation, 1s simulation time = {f'{pico_second_map.get()}ps' if pico_second_mode.get() else '1ns'}"
+        f"Brownian Motion Simulation, 1s simulation time = {f"{pico_second_map.get()}ps" if pico_second_mode.get() else "1ns"}"
     )
 ).grid(row=17, column=0, columnspan=2, pady=10)
 
 # Matplotlib interactive mode
 
 plt.ion()
-plt.figure()
 
 root.protocol("WM_DELETE_WINDOW", on_closing)
 

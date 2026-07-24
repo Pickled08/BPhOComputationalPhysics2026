@@ -24,16 +24,16 @@ def plot_KE_F(workfunction):
     visible_indigo = 7e14
     visible_violet = 7.5e14
 
-    mpl.rcParams['toolbar'] = 'None'
+    mpl.rcParams["toolbar"] = "None"
 
     plt.figure(figsize=(10, 6))
-    plt.plot(frequencies, y_above, label='Electron Kinetic Energy vs Frequency', color='blue')
-    plt.plot(frequencies, y_below, color='blue', linestyle='--')
+    plt.plot(frequencies, y_above, label="Electron Kinetic Energy vs Frequency", color="blue")
+    plt.plot(frequencies, y_below, color="blue", linestyle="--")
    
-    plt.axhline(0, color='red', linestyle='--', label='Zero Kinetic Energy')
-    plt.xlabel('Frequency (Hz)')
-    plt.ylabel('Electron Kinetic Energy (eV)')
-    plt.title('Photoelectric Effect: Electron Kinetic Energy vs Frequency \nWork Function = {:.2f} eV'.format(workfunction))
+    plt.axhline(0, color="red", linestyle="--", label="Zero Kinetic Energy")
+    plt.xlabel("Frequency (Hz)")
+    plt.ylabel("Electron Kinetic Energy (eV)")
+    plt.title("Photoelectric Effect: Electron Kinetic Energy vs Frequency \nWork Function = {:.2f} eV".format(workfunction))
 
     plt.vlines(visible_red, -100, 100, colors="red", linewidth=0.5)
     plt.vlines(visible_orange, -100, 100, colors="orange", linewidth=0.5)

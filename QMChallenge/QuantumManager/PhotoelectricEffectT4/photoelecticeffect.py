@@ -81,7 +81,7 @@ def wavelength_to_hex(wavelength: float, gamma: float = 1.00) -> str:
     Converts a given wavelength of light (in nanometers) to a hex color string.
     Wavelengths outside the visible spectrum (380 nm to 750 nm) return black ("#000000").
     
-    Based on Dan Bruton's algorithm
+    Based on Dan Bruton"s algorithm
     """
     #Determine base RGB components and intensity attenuation (factor)
     if 380 <= wavelength <= 439:
@@ -144,14 +144,14 @@ def update_beam_visual():
     width = canvas.winfo_width()
     height = canvas.winfo_height()
     
-    # Fail-safe catch if window sizes haven't completed rendering yet
+    # Fail-safe catch if window sizes haven"t completed rendering yet
     if width <= 1 or height <= 1:
         width, height = 1100, 700 
 
     img = Image.new("RGBA", (width, height), (0, 0, 0, 0))
     draw = ImageDraw.Draw(img)
     
-    hex_color = current_hex.lstrip('#')
+    hex_color = current_hex.lstrip("#")
     r, g, b = tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
     alpha_val = int(alpha_pct * 255)
     
@@ -242,7 +242,7 @@ def voltage_changed(value):
         #Multiply by your max font size (16)
         dynamic_size = int(sinusoidal_scale * 16)
         
-        # Ensure the font size is at least 1 so Tkinter doesn't throw an error
+        # Ensure the font size is at least 1 so Tkinter doesn"t throw an error
         if dynamic_size < 1: 
             dynamic_size = 1
             
@@ -275,7 +275,7 @@ def material_changed(value):
     work_function = next((m["workfunction"] for m in materials if m["name"] == value), None)
     color = next((m.get("color", "#b0b0b0") for m in materials if m["name"] == value), "#b0b0b0")
     if color is not None:
-        canvas.itemconfig(1, fill=color)  # Update the rectangle's fill color
+        canvas.itemconfig(1, fill=color)  # Update the rectangle"s fill color
     if work_function is not None:
         work_function_label.config(text=f"Work Function: {work_function} eV")
     material_label.config(text=f"Material: {value}")
@@ -616,8 +616,8 @@ def create_starburst(canvas, x, y, color, size=8):
 
     return canvas.create_polygon(points, fill=color, outline="")
 
-# This function creates a photon at the lamp's position and animates it moving towards the left electrode.
-# The photon's color is determined by its wavelength using the wavelength_to_hex function. The animation runs in a separate thread to keep the GUI responsive.
+# This function creates a photon at the lamp"s position and animates it moving towards the left electrode.
+# The photon"s color is determined by its wavelength using the wavelength_to_hex function. The animation runs in a separate thread to keep the GUI responsive.
 def create_photon(wavelength_photon):
     #Draw circle at 700, 100 (the position of the lamp) and animate it moving towards the right electrode at 750, 325
     #Randomize the starting position slightly to create a more dynamic effect
@@ -666,15 +666,15 @@ def photoelectric_effect():
             if wavelength > 0 and intensity > 0:
                 photons_per_second = (intensity_lamp * (intensity / 100.0)) / (6.626e-34 * 3e8 / (wavelength * 1e-9))
                 photons_per_second_displayed = photons_per_second / 1e16
-                interval = 1.0 / photons_per_second_displayed if photons_per_second_displayed > 0 else float('inf')
+                interval = 1.0 / photons_per_second_displayed if photons_per_second_displayed > 0 else float("inf")
             else:
-                interval = float('inf')
+                interval = float("inf")
                 
             if intensity == 0 or wavelength == 0:
                 photons_per_second = 0.0
-                interval = float('inf')
+                interval = float("inf")
 
-            if interval != float('inf') and (now - last_photon_time) >= interval:
+            if interval != float("inf") and (now - last_photon_time) >= interval:
                 create_photon(wavelength)
                 last_photon_time = now
 

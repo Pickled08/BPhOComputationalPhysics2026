@@ -4,9 +4,14 @@
     "path": "RandomWalkT1/guiplot.py",
     "args": []
   },
-    {
+  {
     "name": "Brownian Motion",
     "path": "BrownianMotionT2/brownianmotion.py",
+    "args": []
+  },
+  {
+    "name": "Blackbody Radiation",
+    "path": "BBRadSpecT3/bbrad.py",
     "args": []
   },
   {
@@ -14,7 +19,12 @@
     "path": "PhotoelectricEffectT4/photoelecticeffect.py",
     "args": []
   },
-    {
+  {
+    "name": "Hydrogen Emission Spectrum",
+    "path": "HydroEmSpecT5/hydroemspec.py",
+    "args": []
+  },
+  {
     "name": "Orbtials",
     "path": "OrbitalsT10/orbitals.py",
     "args": []

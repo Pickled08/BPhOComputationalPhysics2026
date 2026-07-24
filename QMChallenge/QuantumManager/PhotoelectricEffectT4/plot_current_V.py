@@ -10,9 +10,9 @@ def plot_current_V(wavelength, work_function, intensity, quantum_efficiency, sto
     if wavelength > 0 and intensity > 0:
         photons_per_second = (intensity_lamp * (intensity / 100.0)) / (6.626e-34 * 3e8 / (wavelength * 1e-9))
         photons_per_second_displayed = photons_per_second / 1e16
-        interval = 1.0 / photons_per_second_displayed if photons_per_second_displayed > 0 else float('inf')
+        interval = 1.0 / photons_per_second_displayed if photons_per_second_displayed > 0 else float("inf")
     else:
-        interval = float('inf')
+        interval = float("inf")
     electron_charge = 1.6021766e-19
     electrons_per_second = photons_per_second * (1 if work_function is not None and (6.6260702e-34 * (299792458 / (wavelength * 1e-9))) >= (work_function * electron_charge) else 0) * quantum_efficiency
     current_max = electrons_per_second * electron_charge
@@ -28,16 +28,16 @@ def plot_current_V(wavelength, work_function, intensity, quantum_efficiency, sto
         else:
             currents.append((-current_max/stopping_potential * voltage) + current_max)
             
-    mpl.rcParams['toolbar'] = 'None'
+    mpl.rcParams["toolbar"] = "None"
     
     plt.figure(figsize=(10, 6))
-    plt.plot(voltages, currents, label='Current vs Voltage', color='blue')
+    plt.plot(voltages, currents, label="Current vs Voltage", color="blue")
     #draw y axis at 0
-    plt.axvline(0, color='black', linestyle='--')
-    plt.axhline(0, color='black', linestyle='--')
-    plt.xlabel('Voltage (V)')
-    plt.ylabel('Current (A)')
-    plt.title('Photoelectric Effect: Current vs Voltage \nWork Function = {:.2f} eV'.format(work_function))
+    plt.axvline(0, color="black", linestyle="--")
+    plt.axhline(0, color="black", linestyle="--")
+    plt.xlabel("Voltage (V)")
+    plt.ylabel("Current (A)")
+    plt.title("Photoelectric Effect: Current vs Voltage \nWork Function = {:.2f} eV".format(work_function))
     plt.legend()
     plt.grid()
     plt.xlim(-10, 10)
