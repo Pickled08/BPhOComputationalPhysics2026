@@ -11,7 +11,7 @@ e_CHARGE = scipy.constants.e
 HC = H_PLANCK * C
 
 def plot_electron_recoil_speed_vs_theta(photon_energies_eV):
-    theta = np.linspace(0, 180, 1000)
+    theta = np.linspace(1e-5, 180, 1000)
     theta_rad = np.radians(theta)
     lamda = (H_PLANCK * C) / (photon_energies_eV * e_CHARGE)
     dlamda = ((H_PLANCK)/(M_ELECTRON*C))*(1 - np.cos(theta_rad))
