@@ -297,7 +297,7 @@ root.title("Photoelectric Effect Simulation")
 root.geometry("1450x800")
 
 # ==========================================
-# LAYOUT STRUCTURE (The Left/Right Split)
+# LAYOUT STRUCTURE
 # ==========================================
 
 #Left Frame to hold all sliders and labels
@@ -417,7 +417,7 @@ except FileNotFoundError:
 update_beam_visual()
 
 # ==========================================
-# WIDGETS (Now packed into left_frame)
+# WIDGETS
 # ==========================================
 
 # Wavelength Group
@@ -445,7 +445,7 @@ except FileNotFoundError:
 wavelength_label = tk.Label(left_frame, text="Wavelength: 0nm")
 wavelength_label.pack(anchor="w", pady=(0, 15))
 
-# --- Intensity Group ---
+#Intensity Group
 intensity_slider = tk.Scale(
     left_frame,
     from_=0, 
@@ -476,7 +476,7 @@ voltage_slider.pack(anchor="w", pady=(10, 2))
 voltage_label = tk.Label(left_frame, text="Voltage: 0V")
 voltage_label.pack(anchor="w", pady=(0, 15))
 
-# --- Material Group ---
+#Material Group
 material_dropdown = tk.StringVar(root)
 material_dropdown.set("Select Material") 
 
@@ -494,7 +494,7 @@ work_function_label.pack(anchor="w", pady=(0, 15))
 stopping_potential_label = tk.Label(left_frame, text="Stopping Potential: N/A")
 stopping_potential_label.pack(anchor="w", pady=(0, 15))
 
-#Button to start the simulation loop (for testing purposes, can be removed or hidden in final version)
+#Button to start the simulation loop
 def toggle_simulation():
     global RUN_SIMULATION
     RUN_SIMULATION = not RUN_SIMULATION
@@ -566,8 +566,7 @@ def hit_left_electrode(photon_coords, wavelength_photon):
         stopping_accel_physical = stopping_force / 9.1093837e-31
         required_decel = (speed_display ** 2) / (2 * PIXEL_GAP)
         ACCEL_SCALE = required_decel / stopping_accel_physical
-        
-        #Give electons a range of kinetic energies based on the photon energy and work function, to create a more dynamic animation. KE max is electron_kinetic_energy
+
         electron_kinetic_energy_dist = np.random.uniform(0, electron_kinetic_energy)
         
         speed_display = np.sqrt(2 * electron_kinetic_energy_dist / 9.1093837e-31) * SPEED_SCALE
@@ -678,7 +677,7 @@ def photoelectric_effect():
                 create_photon(wavelength)
                 last_photon_time = now
 
-            time.sleep(0.01)  # Tight loop — checks globals 100x/sec
+            time.sleep(0.01)
         time.sleep(0.1)  # Sleep briefly when simulation is not running to prevent tight loop
         
 def calculate_current():
