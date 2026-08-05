@@ -25,6 +25,11 @@
     "args": []
   },
   {
+    "name": "Compton Scattering",
+    "path": "ComptonScatteringT9/comptonscattering.py",
+    "args": []
+  },
+  {
     "name": "Orbtials",
     "path": "OrbitalsT10/orbitals.py",
     "args": []
